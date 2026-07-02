@@ -7,9 +7,7 @@
     class="glass-nav fixed md:static bottom-0 left-0 w-full md:w-20 h-16 md:h-screen border-t md:border-t-0 md:border-r border-slate-200 dark:border-slate-800 z-50 flex md:flex-col justify-around md:justify-start md:pt-6 md:pb-4 shrink-0 shadow-[0_-10px_40px_rgba(0,0,0,0.05)] dark:shadow-2xl transition-colors"
   >
     <div class="hidden md:flex justify-center mb-8">
-      <div
-        class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg"
-      >
+      <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
         <i class="fas fa-telescope text-white text-xl"></i>
       </div>
     </div>
@@ -25,7 +23,7 @@
       </div>
       <span class="text-[10px] font-bold mt-1 md:block hidden">Explorer</span>
     </a>
-    
+
     <a
       href="#"
       class="flex flex-col items-center justify-center md:mb-6 w-full md:w-auto h-full md:h-auto text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition-colors group"
@@ -37,7 +35,7 @@
       </div>
       <span class="text-[10px] font-medium mt-1 md:block hidden">Galerie</span>
     </a>
-    
+
     <a
       href="#"
       class="flex flex-col items-center justify-center md:mb-6 w-full md:w-auto h-full md:h-auto text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition-colors relative group"
@@ -59,10 +57,7 @@
       <div
         class="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 border-2 border-white dark:border-slate-600 overflow-hidden mt-1 md:mb-0 shadow-sm"
       >
-        <img
-          src="https://ui-avatars.com/api/?name=User&background=4f46e5&color=fff"
-          alt="User"
-        />
+        <img src="https://ui-avatars.com/api/?name=User&background=4f46e5&color=fff" alt="User" />
       </div>
     </div>
   </nav>

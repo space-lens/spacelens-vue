@@ -1,14 +1,12 @@
 import { reactive, watchEffect } from 'vue'
+import type { Spot } from '@/types/spot'
+import type { PanelState } from '@/types/panel'
 
 export const appState = reactive({
   isDarkMode: false,
   isSearchOverlayVisible: false,
-  activeSpot: null as null | {
-    title: string
-    score: number
-    bortle: number
-  },
-  panelState: 'closed' as 'closed' | 'peek' | 'expanded'
+  activeSpot: null as Spot | null,
+  panelState: 'closed' as PanelState,
 })
 
 export function toggleTheme() {

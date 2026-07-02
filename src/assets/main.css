@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
   --font-sans: 'Inter', sans-serif;
@@ -27,11 +27,14 @@ body {
 }
 .dark .map-bg {
   background-color: #0f172a;
-  background-image: 
-      radial-gradient(circle at 50% 50%, #1e293b 2px, transparent 2px),
-      radial-gradient(circle at 20% 30%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
-      radial-gradient(circle at 80% 70%, rgba(16, 185, 129, 0.1) 0%, transparent 50%);
-  background-size: 40px 40px, 100% 100%, 100% 100%;
+  background-image:
+    radial-gradient(circle at 50% 50%, #1e293b 2px, transparent 2px),
+    radial-gradient(circle at 20% 30%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(16, 185, 129, 0.1) 0%, transparent 50%);
+  background-size:
+    40px 40px,
+    100% 100%,
+    100% 100%;
 }
 
 /* Glassmorphism Classes */
@@ -39,56 +42,91 @@ body {
   background: rgba(255, 255, 255, 0.75);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border-color: rgba(255,255,255,0.5);
+  border-color: rgba(255, 255, 255, 0.5);
 }
 .dark .glass-nav {
   background: rgba(15, 23, 42, 0.75);
-  border-color: rgba(255,255,255,0.1);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 .glass-card {
   background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  box-shadow: 0 10px 40px -10px rgba(0,0,0,0.1);
+  box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.1);
 }
 .dark .glass-card {
   background: rgba(30, 41, 59, 0.85); /* Slate 800 transparent */
-  box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5);
+  box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
 }
 
 /* Logic Smart Panel */
 .smart-panel {
-  transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.3s ease;
+  transition:
+    transform 0.4s cubic-bezier(0.32, 0.72, 0, 1),
+    opacity 0.3s ease;
 }
 
 @media (max-width: 767px) {
   .smart-panel {
-      bottom: 0; left: 0; width: 100%; height: 85vh;
-      border-radius: 1.5rem 1.5rem 0 0;
-      transform: translateY(110%);
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 85vh;
+    border-radius: 1.5rem 1.5rem 0 0;
+    transform: translateY(110%);
   }
-  .smart-panel.peek { transform: translateY(calc(100% - 130px)); }
-  .smart-panel.expanded { transform: translateY(0); }
+  .smart-panel.peek {
+    transform: translateY(calc(100% - 130px));
+  }
+  .smart-panel.expanded {
+    transform: translateY(0);
+  }
 }
 
 @media (min-width: 768px) {
   .smart-panel {
-      top: 5rem; left: 6.5rem; width: 400px; height: calc(100vh - 6rem);
-      border-radius: 1.5rem;
-      transform: translateX(-150%);
-      opacity: 0; pointer-events: none;
+    top: 5rem;
+    left: 6.5rem;
+    width: 400px;
+    height: calc(100vh - 6rem);
+    border-radius: 1.5rem;
+    transform: translateX(-150%);
+    opacity: 0;
+    pointer-events: none;
   }
-  .smart-panel.peek, .smart-panel.expanded { 
-      transform: translateX(0); opacity: 1; pointer-events: auto;
+  .smart-panel.peek,
+  .smart-panel.expanded {
+    transform: translateX(0);
+    opacity: 1;
+    pointer-events: auto;
   }
 }
 
-.search-hidden { opacity: 0; pointer-events: none; transform: translateY(-10px); }
-.search-visible { opacity: 1; pointer-events: auto; transform: translateY(0); }
-@keyframes pulse-ring {
-  0% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
-  70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); }
-  100% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+.search-hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-10px);
 }
-.pin-pulse { animation: pulse-ring 2s infinite; }
+.search-visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.8);
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 10px rgba(34, 197, 94, 0);
+  }
+  100% {
+    transform: scale(0.8);
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+  }
+}
+.pin-pulse {
+  animation: pulse-ring 2s infinite;
+}

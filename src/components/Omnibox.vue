@@ -4,7 +4,7 @@ import { openSearchOverlay } from '../composables/useAppState'
 
 <template>
   <div
-    class="absolute top-0 left-0 right-0 md:left-6 md:w-[400px] md:right-auto z-20 pointer-events-none"
+    class="absolute top-0 left-0 right-0 md:left-6 md:w-100 md:right-auto z-20 pointer-events-none"
   >
     <div class="pt-10 md:pt-6 px-4 pb-2">
       <div
@@ -31,12 +31,12 @@ import { openSearchOverlay } from '../composables/useAppState'
       <!-- Filtres -->
       <div class="pointer-events-auto flex overflow-x-auto no-scrollbar gap-2 mt-3 pb-2">
         <button
-          class="flex-shrink-0 bg-indigo-600 text-white px-4 py-1.5 rounded-full text-xs font-medium shadow-md border border-indigo-500"
+          class="shrink-0 bg-indigo-600 text-white px-4 py-1.5 rounded-full text-xs font-medium shadow-md border border-indigo-500"
         >
           Ce soir
         </button>
         <button
-          class="flex-shrink-0 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md text-slate-700 dark:text-slate-200 border border-white dark:border-slate-600/50 px-4 py-1.5 rounded-full text-xs font-medium shadow-sm hover:bg-white dark:hover:bg-slate-700"
+          class="shrink-0 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md text-slate-700 dark:text-slate-200 border border-white dark:border-slate-600/50 px-4 py-1.5 rounded-full text-xs font-medium shadow-sm hover:bg-white dark:hover:bg-slate-700"
         >
           Bortle ≤ 4
         </button>
