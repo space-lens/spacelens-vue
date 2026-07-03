@@ -4,7 +4,7 @@ import Omnibox from '../components/Omnibox.vue'
 import MapBackground from '../components/MapBackground.vue'
 import SmartPanel from '../components/panel/SmartPanel.vue'
 import SearchOverlay from '../components/SearchOverlay.vue'
-import { toggleTheme } from '../composables/useAppState'
+import { appState, toggleTheme, locateUser } from '../composables/useAppState'
 </script>
 
 <template>
@@ -23,9 +23,14 @@ import { toggleTheme } from '../composables/useAppState'
       <!-- Contrôles Carte -->
       <div class="absolute top-[40%] right-4 z-20 flex flex-col gap-3 pointer-events-auto">
         <button
-          class="w-10 h-10 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border border-white dark:border-slate-600 rounded-full flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white shadow-lg"
+          @click="locateUser"
+          :disabled="appState.isLocating"
+          class="w-10 h-10 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border border-white dark:border-slate-600 rounded-full flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white shadow-lg disabled:opacity-60"
         >
-          <i class="fas fa-location-crosshairs"></i>
+          <i
+            class="fas"
+            :class="appState.isLocating ? 'fa-spinner fa-spin' : 'fa-location-crosshairs'"
+          ></i>
         </button>
         <button
           class="w-10 h-10 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border border-white dark:border-slate-600 rounded-full flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white shadow-lg"

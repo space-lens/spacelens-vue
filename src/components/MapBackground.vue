@@ -1,11 +1,24 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref, watch } from 'vue'
 import L from 'leaflet'
-import { openSmartPanel, closeSmartPanel } from '../composables/useAppState'
+import { appState, openSmartPanel, closeSmartPanel } from '../composables/useAppState'
 import type { Spot } from '@/types/spot'
 
 const mapContainer = ref<HTMLElement | null>(null)
 let map: L.Map | null = null
+let userMarker: L.Marker | null = null
+
+const userLocationIcon = L.divIcon({
+  className: 'user-location-marker',
+  html: `
+    <div class="relative flex items-center justify-center w-5 h-5">
+      <div class="absolute w-5 h-5 bg-indigo-500/30 rounded-full user-location-pulse"></div>
+      <div class="w-3.5 h-3.5 bg-indigo-500 rounded-full border-2 border-white shadow-md"></div>
+    </div>
+  `,
+  iconSize: [20, 20],
+  iconAnchor: [10, 10],
+})
 
 const calernSpot: Spot = { title: 'Plateau de Calern', score: 85, bortle: 3 }
 const calernCoordinates: L.LatLngExpression = [43.75, 6.91]
@@ -51,6 +64,25 @@ onMounted(() => {
   })
 })
 
+watch(
+  () => appState.userPosition,
+  (position) => {
+    if (!map || !position) {
+      return
+    }
+
+    const latLng: L.LatLngExpression = [position.lat, position.lng]
+
+    if (userMarker) {
+      userMarker.setLatLng(latLng)
+    } else {
+      userMarker = L.marker(latLng, { icon: userLocationIcon, zIndexOffset: 1000 }).addTo(map)
+    }
+
+    map.flyTo(latLng, 12)
+  },
+)
+
 onUnmounted(() => {
   if (map) {
     map.remove()
@@ -67,8 +99,22 @@ onUnmounted(() => {
 .leaflet-container {
   background: transparent !important;
 }
-.custom-marker {
+.custom-marker,
+.user-location-marker {
   background: transparent;
   border: none;
+}
+.user-location-pulse {
+  animation: user-location-pulse 2s ease-out infinite;
+}
+@keyframes user-location-pulse {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
 }
 </style>

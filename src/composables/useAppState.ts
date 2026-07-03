@@ -1,5 +1,5 @@
 import { reactive, watchEffect } from 'vue'
-import type { Spot } from '@/types/spot'
+import type { Spot, Coordinates } from '@/types/spot'
 import type { PanelState } from '@/types/panel'
 
 export const appState = reactive({
@@ -7,6 +7,9 @@ export const appState = reactive({
   isSearchOverlayVisible: false,
   activeSpot: null as Spot | null,
   panelState: 'closed' as PanelState,
+  userPosition: null as Coordinates | null,
+  isLocating: false,
+  locationError: null as string | null,
 })
 
 export function toggleTheme() {
@@ -36,6 +39,31 @@ export function openSearchOverlay() {
 
 export function closeSearchOverlay() {
   appState.isSearchOverlayVisible = false
+}
+
+export function locateUser() {
+  if (!navigator.geolocation) {
+    appState.locationError = "La géolocalisation n'est pas supportée par ce navigateur."
+    return
+  }
+
+  appState.isLocating = true
+  appState.locationError = null
+
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      appState.userPosition = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+      }
+      appState.isLocating = false
+    },
+    (error) => {
+      appState.locationError = error.message
+      appState.isLocating = false
+    },
+    { enableHighAccuracy: true, timeout: 10000 },
+  )
 }
 
 // Watch for dark mode changes and apply to HTML tag
