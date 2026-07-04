@@ -40,22 +40,27 @@ onUnmounted(() => {
   <Transition
     enter-active-class="transition-all duration-300"
     leave-active-class="transition-all duration-200"
-    enter-from-class="opacity-0 translate-y-2"
-    leave-to-class="opacity-0 translate-y-2"
+    enter-from-class="opacity-0"
+    leave-to-class="opacity-0"
   >
+    <!-- pointer-events-auto sur tout l'overlay : bloque volontairement toute interaction avec
+         la carte/omnibox/contrôles pendant le chargement (la Navigation reste cliquable, c'est
+         un sibling en dehors de <main>, pas un enfant de cet overlay). -->
     <div
       v-if="appState.isLoadingSpots"
-      class="absolute bottom-24 md:bottom-8 left-1/2 -translate-x-1/2 z-20 pointer-events-none"
+      class="absolute inset-0 z-40 flex items-center justify-center bg-white/40 dark:bg-slate-950/50 backdrop-blur-sm pointer-events-auto cursor-wait"
     >
       <div
-        class="pointer-events-auto bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl border border-white dark:border-slate-700/50 rounded-2xl shadow-xl px-4 py-2.5 flex items-center gap-3 whitespace-nowrap"
+        class="bg-white/95 dark:bg-slate-800/95 border border-white dark:border-slate-700/50 rounded-2xl shadow-2xl px-6 py-5 flex flex-col items-center gap-3 max-w-[80%]"
       >
-        <div class="flex items-center gap-1 shrink-0">
-          <span class="w-2 h-2 rounded-full bg-indigo-500 loading-dot"></span>
-          <span class="w-2 h-2 rounded-full bg-indigo-500 loading-dot loading-dot-2"></span>
-          <span class="w-2 h-2 rounded-full bg-indigo-500 loading-dot loading-dot-3"></span>
+        <div class="flex items-center gap-1.5 shrink-0">
+          <span class="w-3 h-3 rounded-full bg-indigo-500 loading-dot"></span>
+          <span class="w-3 h-3 rounded-full bg-indigo-500 loading-dot loading-dot-2"></span>
+          <span class="w-3 h-3 rounded-full bg-indigo-500 loading-dot loading-dot-3"></span>
         </div>
-        <span class="text-sm text-slate-600 dark:text-slate-300">{{ MESSAGES[messageIndex] }}</span>
+        <span class="text-sm font-medium text-slate-700 dark:text-slate-200 text-center">{{
+          MESSAGES[messageIndex]
+        }}</span>
       </div>
     </div>
   </Transition>
