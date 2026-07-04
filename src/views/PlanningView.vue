@@ -4,6 +4,7 @@ import Omnibox from '../components/Omnibox.vue'
 import MapBackground from '../components/MapBackground.vue'
 import SmartPanel from '../components/panel/SmartPanel.vue'
 import SearchOverlay from '../components/SearchOverlay.vue'
+import LoadingIndicator from '../components/LoadingIndicator.vue'
 import { appState, toggleTheme, locateUser } from '../composables/useAppState'
 </script>
 
@@ -41,6 +42,10 @@ import { appState, toggleTheme, locateUser } from '../composables/useAppState'
 
       <!-- LAYER 2 : SMART PANEL -->
       <SmartPanel />
+
+      <!-- Indicateur de chargement (sélection d'un lieu : /v1/recommendations peut prendre
+           plusieurs secondes, plusieurs appels météo réels enchaînés) -->
+      <LoadingIndicator />
 
       <!-- LAYER 3 : SEARCH OVERLAY -->
       <SearchOverlay />
