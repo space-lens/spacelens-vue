@@ -10,6 +10,7 @@ export interface RecommendationOrigin {
   latitude: number
   longitude: number
   score: number | null
+  bortle: number | null
 }
 
 export interface RecommendationData {

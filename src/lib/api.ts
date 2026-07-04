@@ -1,5 +1,7 @@
 import type { SearchResults } from '@/types/search'
 import type { RecommendationData } from '@/types/recommendation'
+import type { WeatherResponse } from '@/types/weather'
+import type { TonightTargetApiItem } from '@/types/celestialTonight'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
 
@@ -12,7 +14,10 @@ export interface SearchOptions {
   signal?: AbortSignal
 }
 
-export async function searchOmnibox(query: string, options: SearchOptions = {}): Promise<SearchResults> {
+export async function searchOmnibox(
+  query: string,
+  options: SearchOptions = {},
+): Promise<SearchResults> {
   const params = new URLSearchParams({ q: query })
   if (options.latitude !== undefined) params.set('latitude', String(options.latitude))
   if (options.longitude !== undefined) params.set('longitude', String(options.longitude))
@@ -41,12 +46,65 @@ export async function getRecommendations(
   const params = new URLSearchParams({ latitude: String(latitude), longitude: String(longitude) })
   if (options.date) params.set('date', options.date)
 
-  const response = await fetch(`${API_BASE_URL}/v1/recommendations?${params}`, { signal: options.signal })
+  const response = await fetch(`${API_BASE_URL}/v1/recommendations?${params}`, {
+    signal: options.signal,
+  })
 
   if (!response.ok) {
     throw new Error(`Les recommandations sont indisponibles (${response.status})`)
   }
 
   const json: { data: RecommendationData } = await response.json()
+  return json.data
+}
+
+export interface WeatherOptions {
+  date?: string
+  signal?: AbortSignal
+}
+
+// Pas de wrapper { data: ... } ici : contrat historique de /v1/weather, différent des autres
+// endpoints — non modifié dans le cadre de ce travail.
+export async function getWeather(
+  latitude: number,
+  longitude: number,
+  options: WeatherOptions = {},
+): Promise<WeatherResponse> {
+  const params = new URLSearchParams({ latitude: String(latitude), longitude: String(longitude) })
+  if (options.date) params.set('start_date', options.date)
+
+  const response = await fetch(`${API_BASE_URL}/v1/weather?${params}`, { signal: options.signal })
+
+  if (!response.ok) {
+    throw new Error(`La météo est indisponible (${response.status})`)
+  }
+
+  return response.json()
+}
+
+export interface TonightTargetsOptions {
+  date?: string
+  limit?: number
+  signal?: AbortSignal
+}
+
+export async function getTonightCelestialObjects(
+  latitude: number,
+  longitude: number,
+  options: TonightTargetsOptions = {},
+): Promise<TonightTargetApiItem[]> {
+  const params = new URLSearchParams({ latitude: String(latitude), longitude: String(longitude) })
+  if (options.date) params.set('date', options.date)
+  if (options.limit) params.set('limit', String(options.limit))
+
+  const response = await fetch(`${API_BASE_URL}/v1/celestial-objects/tonight?${params}`, {
+    signal: options.signal,
+  })
+
+  if (!response.ok) {
+    throw new Error(`Les cibles du soir sont indisponibles (${response.status})`)
+  }
+
+  const json: { data: TonightTargetApiItem[] } = await response.json()
   return json.data
 }

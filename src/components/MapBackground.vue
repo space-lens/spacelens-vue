@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref, watch } from 'vue'
 import L from 'leaflet'
-import { appState } from '../composables/useAppState'
+import { appState, openSmartPanel } from '../composables/useAppState'
 import { scoreBgClass } from '@/utils/score'
 import { escapeHtml } from '@/utils/html'
 
@@ -104,10 +104,14 @@ watch(
     if (!spot) return
 
     const latLng: L.LatLngExpression = [spot.latitude, spot.longitude]
-    primaryMarker = L.marker(latLng, { icon: createPrimaryIcon(spot.score, spot.name), zIndexOffset: 500 }).addTo(map)
+    primaryMarker = L.marker(latLng, {
+      icon: createPrimaryIcon(spot.score, spot.name),
+      zIndexOffset: 500,
+    }).addTo(map)
     primaryMarker.on('click', (e) => {
       L.DomEvent.stopPropagation(e)
       centerOn(latLng)
+      openSmartPanel()
     })
 
     map.flyTo(latLng, SELECTED_LOCATION_ZOOM)

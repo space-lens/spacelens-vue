@@ -1,58 +1,67 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { Spot } from '@/types/spot'
+import type { SelectedSpotDetail } from '@/types/panel'
+import { scoreBorderClass, scoreTextClass, scoreBgTintClass } from '@/utils/score'
 
 const props = defineProps<{
-  spot: Spot | null
+  spot: SelectedSpotDetail | null
+  score: number | null
 }>()
 
 const emit = defineEmits<{
   toggle: []
+  close: []
 }>()
 
-const scoreColorClass = computed(() => {
-  if (!props.spot) return ''
-  return props.spot.score > 70
-    ? 'border-green-500 text-green-500 dark:text-green-400 dark:bg-green-500/10'
-    : 'border-orange-500 text-orange-500 dark:text-orange-400 dark:bg-orange-500/10'
+const scoreCircleClasses = computed(() => {
+  if (props.score === null) {
+    return 'border-slate-300 dark:border-slate-600 text-slate-400 dark:text-slate-500'
+  }
+  return [scoreBorderClass(props.score), scoreTextClass(props.score), scoreBgTintClass(props.score)]
 })
 </script>
 
 <template>
   <div
-    class="shrink-0 p-4 border-b border-slate-200/50 dark:border-slate-700/50 bg-white/50 dark:bg-slate-800/50 z-20 cursor-pointer"
+    class="shrink-0 p-5 pb-4 border-b border-slate-200/50 dark:border-slate-700/50 cursor-pointer md:cursor-default relative z-20"
     @click="emit('toggle')"
   >
     <div
-      class="w-12 h-1.5 bg-slate-300 dark:bg-slate-600 rounded-full mx-auto mb-4 desktop-hide-handle"
+      class="w-12 h-1.5 bg-slate-300 dark:bg-slate-600 rounded-full mx-auto mb-4 md:hidden"
     ></div>
 
     <div class="flex justify-between items-start">
-      <div>
-        <h2 id="panel-title" class="text-xl font-bold text-slate-900 dark:text-white mb-1">
-          {{ spot?.title || 'Spot' }}
+      <div class="flex-1 pr-4 min-w-0">
+        <h2 class="text-2xl font-bold text-slate-900 dark:text-white leading-tight truncate">
+          {{ spot?.name ?? 'Lieu' }}
         </h2>
-        <div class="flex items-center gap-2 mt-1">
+
+        <div
+          v-if="spot?.bortle !== null && spot?.bortle !== undefined"
+          class="flex items-center gap-2 mt-3"
+        >
           <span
-            class="text-[10px] bg-slate-200/80 dark:bg-slate-700/80 text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded"
+            class="text-xs bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-700/50 px-2.5 py-1 rounded-md font-semibold shadow-sm flex items-center gap-1.5"
           >
-            <i class="fas fa-car mr-1"></i> Parking
-          </span>
-          <span
-            class="text-[10px] bg-indigo-100/80 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-700/50 px-2 py-0.5 rounded"
-          >
-            Bortle <span id="panel-bortle">{{ spot?.bortle || 'X' }}</span>
+            <i class="fas fa-lightbulb text-indigo-500"></i> Bortle {{ spot.bortle }}
           </span>
         </div>
       </div>
-      <div
-        id="panel-score-circle"
-        class="w-12 h-12 rounded-full border-2 flex flex-col items-center justify-center shrink-0 shadow-lg bg-white/80 dark:bg-transparent backdrop-blur-md"
-        :class="scoreColorClass"
-      >
-        <span id="panel-score" class="font-bold text-lg leading-none">
-          {{ spot?.score || '--' }}
-        </span>
+
+      <div class="flex flex-col items-center gap-3 shrink-0">
+        <button
+          class="hidden md:flex w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white items-center justify-center transition-colors shadow-sm border border-slate-200 dark:border-slate-700"
+          @click.stop="emit('close')"
+        >
+          <i class="fas fa-times"></i>
+        </button>
+        <div
+          class="w-16 h-16 rounded-full border-[3px] flex flex-col items-center justify-center shadow-sm"
+          :class="scoreCircleClasses"
+        >
+          <span class="text-[9px] uppercase font-bold -mb-1 opacity-80">Score</span>
+          <span class="font-extrabold text-2xl">{{ score ?? '--' }}</span>
+        </div>
       </div>
     </div>
   </div>

@@ -1,12 +1,15 @@
 import { reactive, watchEffect } from 'vue'
-import type { Spot, Coordinates, MapPin } from '@/types/spot'
-import type { PanelState } from '@/types/panel'
-import { getRecommendations } from '@/lib/api'
+import type { Coordinates, MapPin } from '@/types/spot'
+import type { PanelState, HourlyWeather, TonightTarget, SelectedSpotDetail } from '@/types/panel'
+import type { WeatherResponse } from '@/types/weather'
+import type { TonightTargetApiItem } from '@/types/celestialTonight'
+import { getRecommendations, getWeather, getTonightCelestialObjects } from '@/lib/api'
+
+const TONIGHT_TARGETS_LIMIT = 5
 
 export const appState = reactive({
   isDarkMode: false,
   isSearchOverlayVisible: false,
-  activeSpot: null as Spot | null,
   panelState: 'closed' as PanelState,
   userPosition: null as Coordinates | null,
   isLocating: false,
@@ -17,15 +20,20 @@ export const appState = reactive({
   recommendedSpots: [] as MapPin[],
   isLoadingSpots: false,
   spotsError: null as string | null,
+  // Détail affiché dans le SmartPanel pour le lieu sélectionné (distinct de primarySpot, qui ne
+  // sert qu'au placement du marqueur sur la carte).
+  selectedSpot: null as SelectedSpotDetail | null,
+  selectedHourIndex: 0,
 })
 
 export function toggleTheme() {
   appState.isDarkMode = !appState.isDarkMode
 }
 
-export function openSmartPanel(title: string, score: number, bortle: number) {
-  appState.activeSpot = { title, score, bortle }
-  appState.panelState = 'peek'
+export function openSmartPanel() {
+  if (appState.selectedSpot) {
+    appState.panelState = 'peek'
+  }
 }
 
 export function closeSmartPanel() {
@@ -37,6 +45,12 @@ export function togglePanelExpand() {
     appState.panelState = 'expanded'
   } else if (appState.panelState === 'expanded') {
     appState.panelState = 'peek'
+  }
+}
+
+export function selectHour(index: number) {
+  if (appState.selectedSpot && index >= 0 && index < appState.selectedSpot.hourly.length) {
+    appState.selectedHourIndex = index
   }
 }
 
@@ -76,10 +90,11 @@ export function locateUser() {
 let recommendationsAbortController: AbortController | null = null
 
 /**
- * Point d'entrée unique quand un lieu est choisi (recherche, géolocalisation) : un seul appel
- * à /v1/recommendations peuple à la fois le pin principal (origin.score) et les pastilles
- * alternatives (spots), cf. CLAUDE.md backend — /v1/weather aurait le même rôle pour le score
- * du point d'origine mais souffre encore du bug "score du jour qui disparaît l'après-midi".
+ * Point d'entrée unique quand un lieu est choisi (recherche, géolocalisation) : peuple en un
+ * seul lot le pin principal + les pastilles (GET /v1/recommendations) et le détail du SmartPanel
+ * (GET /v1/weather + GET /v1/celestial-objects/tonight). Les trois appels partagent le même
+ * lieu/nuit déjà synchronisé par la première requête (voir CLAUDE.md backend), donc les deux
+ * suivants ne déclenchent pas de nouvel appel météo externe.
  */
 export async function selectLocation(latitude: number, longitude: number, name?: string) {
   recommendationsAbortController?.abort()
@@ -90,20 +105,91 @@ export async function selectLocation(latitude: number, longitude: number, name?:
   appState.spotsError = null
 
   try {
-    const result = await getRecommendations(latitude, longitude, { signal: controller.signal })
+    const [recommendations, weather, targets] = await Promise.all([
+      getRecommendations(latitude, longitude, { signal: controller.signal }),
+      getWeather(latitude, longitude, { signal: controller.signal }),
+      getTonightCelestialObjects(latitude, longitude, {
+        limit: TONIGHT_TARGETS_LIMIT,
+        signal: controller.signal,
+      }),
+    ])
 
-    appState.primarySpot = { latitude, longitude, score: result.origin.score, name }
-    appState.recommendedSpots = result.spots.map((spot) => ({
+    appState.primarySpot = { latitude, longitude, score: recommendations.origin.score, name }
+    appState.recommendedSpots = recommendations.spots.map((spot) => ({
       latitude: spot.latitude,
       longitude: spot.longitude,
       score: spot.score,
     }))
+
+    const hourly = buildHourlyWeather(weather)
+
+    appState.selectedSpot = {
+      name: name ?? formatCoordinates(latitude, longitude),
+      latitude,
+      longitude,
+      bortle: recommendations.origin.bortle,
+      hourly,
+      targets: targets.map(toTonightTarget),
+    }
+    appState.selectedHourIndex = bestScoreHourIndex(hourly)
   } catch (error) {
     if (error instanceof DOMException && error.name === 'AbortError') return
     appState.spotsError = error instanceof Error ? error.message : 'Erreur inconnue'
   } finally {
     appState.isLoadingSpots = false
   }
+}
+
+function buildHourlyWeather(weather: WeatherResponse): HourlyWeather[] {
+  const day = Object.values(weather)[0]
+  if (!day?.hours) {
+    return []
+  }
+
+  return Object.entries(day.hours)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([time, hour]) => ({
+      time,
+      score: hour.score,
+      temperatureC: hour.temperature,
+      cloudinessPercent: hour.cloudiness,
+      humidityPercent: hour.humidity,
+      windSpeedKmh: hour.wind_speed,
+      rainProbabilityPercent: hour.rain_probability,
+    }))
+}
+
+// "Meilleur score par défaut, première occurrence en cas d'égalité" : ">" strict ne remplace
+// jamais l'index déjà retenu pour un score simplement égal.
+function bestScoreHourIndex(hourly: HourlyWeather[]): number {
+  let bestIndex = 0
+  let bestScore = hourly[0]?.score ?? -Infinity
+
+  for (let i = 1; i < hourly.length; i++) {
+    const score = hourly[i]?.score
+    if (score !== undefined && score > bestScore) {
+      bestScore = score
+      bestIndex = i
+    }
+  }
+
+  return bestIndex
+}
+
+function toTonightTarget(item: TonightTargetApiItem): TonightTarget {
+  return {
+    slug: item.slug,
+    displayName: item.display_name,
+    objectType: item.object_type,
+    objectTypeLabel: item.object_type_label,
+    apparentMagnitude: item.apparent_magnitude,
+    transitAt: item.transit_at,
+    maxAltitudeDeg: item.max_altitude_deg,
+  }
+}
+
+function formatCoordinates(latitude: number, longitude: number): string {
+  return `${latitude.toFixed(3)}°, ${longitude.toFixed(3)}°`
 }
 
 // Watch for dark mode changes and apply to HTML tag

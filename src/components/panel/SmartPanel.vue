@@ -1,29 +1,19 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { appState, togglePanelExpand } from '@/composables/useAppState'
-import type { WeatherHour, Recommendation } from '@/types/panel'
+import { appState, togglePanelExpand, closeSmartPanel, selectHour } from '@/composables/useAppState'
 import PanelHeader from './PanelHeader.vue'
 import WeatherTimeline from './WeatherTimeline.vue'
-import RecommendationCard from './RecommendationCard.vue'
+import AtmosphereGrid from './AtmosphereGrid.vue'
+import TonightTargetItem from './TonightTargetItem.vue'
 
-const weatherHours: WeatherHour[] = [
-  { time: '21:00', temperatureC: 12, qualityPercent: 60 },
-  { time: '22:00', temperatureC: 11, qualityPercent: 85, isHighlighted: true },
-  { time: '23:00', temperatureC: 10, qualityPercent: 95 },
-]
+const panelClasses = computed(() => ({
+  peek: appState.panelState === 'peek',
+  expanded: appState.panelState === 'expanded',
+}))
 
-const recommendation: Recommendation = {
-  name: 'Andromède (M31)',
-  icon: 'fa-meteor',
-  subtitle: 'Idéal à 22h00',
-}
-
-const panelClasses = computed(() => {
-  return {
-    peek: appState.panelState === 'peek',
-    expanded: appState.panelState === 'expanded',
-  }
-})
+const selectedHour = computed(
+  () => appState.selectedSpot?.hourly[appState.selectedHourIndex] ?? null,
+)
 </script>
 
 <template>
@@ -32,51 +22,74 @@ const panelClasses = computed(() => {
     class="smart-panel glass-card absolute z-30 flex flex-col overflow-hidden border border-white/50 dark:border-slate-700/50"
     :class="panelClasses"
   >
-    <PanelHeader :spot="appState.activeSpot" @toggle="togglePanelExpand" />
+    <PanelHeader
+      :spot="appState.selectedSpot"
+      :score="selectedHour?.score ?? null"
+      @toggle="togglePanelExpand"
+      @close="closeSmartPanel"
+    />
 
     <!-- Contenu Étendu -->
     <div
-      id="panel-expanded-content"
-      class="flex-1 overflow-y-auto no-scrollbar transition-opacity duration-300 md:desktop-content-visible"
+      class="flex-1 overflow-y-auto no-scrollbar transition-opacity duration-300"
       :class="
         appState.panelState === 'expanded'
           ? 'opacity-100 block'
           : 'opacity-0 hidden md:block md:opacity-100'
       "
     >
+      <!-- SECTION 1 : Évolution de la nuit (créneaux réels du fournisseur météo, pas de l'horaire complet) -->
       <div
-        class="p-4 bg-slate-50/50 dark:bg-slate-900/30 border-b border-slate-200/50 dark:border-slate-700/50"
+        v-if="appState.selectedSpot && appState.selectedSpot.hourly.length > 0"
+        class="p-5 border-b border-slate-200/50 dark:border-slate-700/50"
       >
-        <span
-          class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-4 block"
-          >Évolution (Ce soir)</span
-        >
-        <WeatherTimeline :hours="weatherHours" />
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+            Évolution de la nuit
+          </h3>
+          <span
+            class="text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-500 px-2 py-0.5 rounded"
+            >Cliquez pour le détail</span
+          >
+        </div>
+        <WeatherTimeline
+          :hours="appState.selectedSpot.hourly"
+          :selected-index="appState.selectedHourIndex"
+          @select="selectHour"
+        />
       </div>
 
-      <div class="p-4">
-        <span
-          class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 block"
-          >Recommandé ici</span
-        >
-        <RecommendationCard :recommendation="recommendation" />
-      </div>
-    </div>
-
-    <div
-      id="panel-cta"
-      class="p-4 bg-white/50 dark:bg-slate-800/50 border-t border-slate-200/50 dark:border-slate-700/50 transition-opacity duration-300 md:desktop-content-visible"
-      :class="
-        appState.panelState === 'expanded'
-          ? 'opacity-100 block'
-          : 'opacity-0 hidden md:block md:opacity-100'
-      "
-    >
-      <button
-        class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3.5 rounded-xl shadow-[0_4px_14px_0_rgba(79,70,229,0.39)] flex items-center justify-center gap-2"
+      <!-- SECTION 2 : Atmosphère au créneau sélectionné -->
+      <div
+        v-if="selectedHour"
+        class="p-5 border-b border-slate-200/50 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-900/20"
       >
-        <i class="fas fa-rocket"></i> Créer la session
-      </button>
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+            Atmosphère à
+            <span class="text-indigo-600 dark:text-indigo-400 font-extrabold">{{
+              selectedHour.time
+            }}</span>
+          </h3>
+        </div>
+        <AtmosphereGrid :hour="selectedHour" />
+      </div>
+
+      <!-- SECTION 3 : Cibles célestes recommandées ici -->
+      <div v-if="appState.selectedSpot && appState.selectedSpot.targets.length > 0" class="p-5">
+        <h3
+          class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-4"
+        >
+          Cibles recommandées ici
+        </h3>
+        <div class="space-y-3">
+          <TonightTargetItem
+            v-for="target in appState.selectedSpot.targets"
+            :key="target.slug"
+            :target="target"
+          />
+        </div>
+      </div>
     </div>
   </div>
 </template>
