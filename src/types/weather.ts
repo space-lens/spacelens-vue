@@ -7,6 +7,7 @@ export interface WeatherHourEntry {
   humidity: number | null
   wind_speed: number | null
   rain_probability: number | null
+  is_night: boolean
 }
 
 export interface WeatherDayEntry {

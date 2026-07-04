@@ -1,9 +1,13 @@
 import { reactive, watchEffect } from 'vue'
 import type { Coordinates, MapPin } from '@/types/spot'
 import type { PanelState, HourlyWeather, TonightTarget, SelectedSpotDetail } from '@/types/panel'
-import type { WeatherResponse } from '@/types/weather'
+import type { WeatherResponse, WeatherDayEntry } from '@/types/weather'
 import type { TonightTargetApiItem } from '@/types/celestialTonight'
 import { getRecommendations, getWeather, getTonightCelestialObjects } from '@/lib/api'
+
+// Une soirée d'observation déborde sur le lendemain matin : on va chercher les créneaux nocturnes
+// du lendemain jusqu'à cette heure plutôt que de couper la nuit à minuit.
+const NEXT_DAY_HOURLY_CUTOFF = '08:00'
 
 const TONIGHT_TARGETS_LIMIT = 5
 
@@ -105,7 +109,7 @@ export async function selectLocation(latitude: number, longitude: number, name?:
   appState.spotsError = null
 
   try {
-    const [recommendations, weather, targets] = await Promise.all([
+    const [recommendations, todayWeather, targets] = await Promise.all([
       getRecommendations(latitude, longitude, { signal: controller.signal }),
       getWeather(latitude, longitude, { signal: controller.signal }),
       getTonightCelestialObjects(latitude, longitude, {
@@ -121,7 +125,18 @@ export async function selectLocation(latitude: number, longitude: number, name?:
       score: spot.score,
     }))
 
-    const hourly = buildHourlyWeather(weather)
+    // Le lendemain matin (jusqu'à 8h) fait partie de la même soirée d'observation — deuxième
+    // appel une fois qu'on connaît le jour local réellement résolu par le premier (la clé du jour
+    // dans la réponse), déjà synchronisé en base par le même appel (voir CLAUDE.md backend).
+    const todayDateKey = Object.keys(todayWeather)[0]
+    const tomorrowWeather = todayDateKey
+      ? await getWeather(latitude, longitude, {
+          date: addDays(todayDateKey, 1),
+          signal: controller.signal,
+        })
+      : {}
+
+    const hourly = buildNightlyHourly(todayWeather, tomorrowWeather)
 
     appState.selectedSpot = {
       name: name ?? formatCoordinates(latitude, longitude),
@@ -140,13 +155,27 @@ export async function selectLocation(latitude: number, longitude: number, name?:
   }
 }
 
-function buildHourlyWeather(weather: WeatherResponse): HourlyWeather[] {
-  const day = Object.values(weather)[0]
+// Ne garde que les créneaux nocturnes (is_night, calculé côté back à partir du lever/coucher du
+// soleil réel) : les créneaux de jour ont toujours un score à 0 (non pertinents pour une
+// observation), les afficher ne ferait qu'encombrer la timeline de barres vides.
+function buildNightlyHourly(today: WeatherResponse, tomorrow: WeatherResponse): HourlyWeather[] {
+  const todayHours = extractNightHours(Object.values(today)[0], null, false)
+  const tomorrowHours = extractNightHours(Object.values(tomorrow)[0], NEXT_DAY_HOURLY_CUTOFF, true)
+
+  return [...todayHours, ...tomorrowHours]
+}
+
+function extractNightHours(
+  day: WeatherDayEntry | undefined,
+  maxTime: string | null,
+  isNextDay: boolean,
+): HourlyWeather[] {
   if (!day?.hours) {
     return []
   }
 
   return Object.entries(day.hours)
+    .filter(([time, hour]) => hour.is_night && (maxTime === null || time <= maxTime))
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([time, hour]) => ({
       time,
@@ -156,7 +185,14 @@ function buildHourlyWeather(weather: WeatherResponse): HourlyWeather[] {
       humidityPercent: hour.humidity,
       windSpeedKmh: hour.wind_speed,
       rainProbabilityPercent: hour.rain_probability,
+      isNextDay,
     }))
+}
+
+function addDays(dateStr: string, days: number): string {
+  const date = new Date(`${dateStr}T00:00:00Z`)
+  date.setUTCDate(date.getUTCDate() + days)
+  return date.toISOString().slice(0, 10)
 }
 
 // "Meilleur score par défaut, première occurrence en cas d'égalité" : ">" strict ne remplace

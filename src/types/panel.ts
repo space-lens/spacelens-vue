@@ -1,7 +1,9 @@
 export type PanelState = 'closed' | 'peek' | 'expanded'
 
 // Un créneau horaire réel (GET /v1/weather) : le fournisseur météo ne renvoie qu'un pas de 3h
-// (pas un vrai "horaire"), donc le nombre de créneaux disponibles pour une nuit varie.
+// (pas un vrai "horaire"), donc le nombre de créneaux disponibles pour une nuit varie. Seuls les
+// créneaux nocturnes sont retenus (isNight décidé côté back) — une soirée déborde sur le
+// lendemain matin, d'où isNextDay pour les créneaux venant du jour calendaire suivant.
 export interface HourlyWeather {
   time: string
   score: number
@@ -10,6 +12,7 @@ export interface HourlyWeather {
   humidityPercent: number | null
   windSpeedKmh: number | null
   rainProbabilityPercent: number | null
+  isNextDay: boolean
 }
 
 // Cible céleste recommandée pour ce lieu/cette nuit (GET /v1/celestial-objects/tonight).

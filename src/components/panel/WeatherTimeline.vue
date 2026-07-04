@@ -30,14 +30,14 @@ const emit = defineEmits<{
         class="absolute -top-1.5 w-3 h-3 bg-indigo-500 rounded-full border-2 border-white dark:border-slate-800"
       ></span>
       <span
-        class="text-xs font-bold"
+        class="text-xs font-bold whitespace-nowrap"
         :class="
           index === selectedIndex
             ? 'text-indigo-600 dark:text-indigo-400'
             : 'text-slate-700 dark:text-slate-300'
         "
       >
-        {{ hour.time }}
+        {{ hour.time }}<sup v-if="hour.isNextDay">+1</sup>
       </span>
       <div
         class="w-full h-12 bg-slate-200/50 dark:bg-slate-800/50 rounded mt-2 relative flex items-end overflow-hidden"
