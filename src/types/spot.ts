@@ -11,4 +11,5 @@ export interface MapPin {
   longitude: number
   score: number | null
   name?: string
+  bortle?: number | null
 }

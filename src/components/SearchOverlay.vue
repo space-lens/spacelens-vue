@@ -27,7 +27,9 @@ const celestialObjects = ref<CelestialObjectResult[]>([])
 const isSearching = ref(false)
 const searchError = ref<string | null>(null)
 
-const recentSearches: RecentSearch[] = [{ title: 'Plateau de Calern', bortle: 3, icon: 'fa-map-marker-alt' }]
+const recentSearches: RecentSearch[] = [
+  { title: 'Plateau de Calern', bortle: 3, icon: 'fa-map-marker-alt' },
+]
 
 let debounceTimer: ReturnType<typeof setTimeout> | null = null
 let abortController: AbortController | null = null
@@ -63,7 +65,12 @@ async function runSearch(term: string) {
   isSearching.value = true
   searchError.value = null
 
-  const type = activeTab.value === 'locations' ? 'location' : activeTab.value === 'objects' ? 'celestial_object' : undefined
+  const type =
+    activeTab.value === 'locations'
+      ? 'location'
+      : activeTab.value === 'objects'
+        ? 'celestial_object'
+        : undefined
 
   try {
     const result = await searchOmnibox(term, {
@@ -165,7 +172,9 @@ watch(
     <div class="flex-1 overflow-y-auto p-4 md:p-8">
       <div class="max-w-3xl mx-auto space-y-8 pb-20 mt-2">
         <div v-if="query.trim().length < MIN_QUERY_LENGTH">
-          <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Lieux récents</h4>
+          <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">
+            Lieux récents
+          </h4>
           <RecentSearchItem
             v-for="item in recentSearches"
             :key="item.title"
@@ -175,7 +184,9 @@ watch(
         </div>
 
         <template v-else>
-          <p v-if="isSearching" class="text-sm text-slate-400 dark:text-slate-500 text-center">Recherche…</p>
+          <p v-if="isSearching" class="text-sm text-slate-400 dark:text-slate-500 text-center">
+            Recherche…
+          </p>
           <p v-else-if="searchError" class="text-sm text-red-500 text-center">{{ searchError }}</p>
           <template v-else>
             <div v-if="activeTab !== 'objects' && locations.length > 0">
@@ -191,7 +202,9 @@ watch(
             </div>
 
             <div v-if="activeTab !== 'locations' && celestialObjects.length > 0">
-              <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Objets célestes</h4>
+              <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">
+                Objets célestes
+              </h4>
               <div class="space-y-2">
                 <CelestialObjectResultItem
                   v-for="item in celestialObjects"

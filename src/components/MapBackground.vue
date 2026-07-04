@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref, watch } from 'vue'
 import L from 'leaflet'
-import { appState, openSmartPanel } from '../composables/useAppState'
+import { appState, openSmartPanel, selectRecommendedSpot } from '../composables/useAppState'
 import { scoreBgClass } from '@/utils/score'
 import { escapeHtml } from '@/utils/html'
 
@@ -118,19 +118,24 @@ watch(
   },
 )
 
+// Constante locale : reflète le libellé statique de la pastille "Bortle ≤ 4" de l'Omnibox.
+const BORTLE_FILTER_MAX = 4
+
 watch(
-  () => appState.recommendedSpots,
-  (spots) => {
+  [() => appState.recommendedSpots, () => appState.isBortleFilterActive],
+  ([spots, bortleFilterActive]) => {
     recommendationMarkers.clearLayers()
 
     for (const spot of spots) {
-      const latLng: L.LatLngExpression = [spot.latitude, spot.longitude]
       if (spot.score === null) continue
+      if (bortleFilterActive && spot.bortle != null && spot.bortle > BORTLE_FILTER_MAX) continue
 
+      const latLng: L.LatLngExpression = [spot.latitude, spot.longitude]
       const marker = L.marker(latLng, { icon: createRecommendationIcon(spot.score) })
       marker.on('click', (e) => {
         L.DomEvent.stopPropagation(e)
         centerOn(latLng)
+        void selectRecommendedSpot(spot)
       })
       recommendationMarkers.addLayer(marker)
     }

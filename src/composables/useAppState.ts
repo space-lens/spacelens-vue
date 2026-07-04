@@ -28,6 +28,12 @@ export const appState = reactive({
   // sert qu'au placement du marqueur sur la carte).
   selectedSpot: null as SelectedSpotDetail | null,
   selectedHourIndex: 0,
+  // Filtre "Bortle ≤ 4" de l'Omnibox : purement client, masque les pastilles de recommandation
+  // dont le Bortle dépasse 4 (déjà connu sur chaque MapPin, aucun appel supplémentaire).
+  isBortleFilterActive: false,
+  // Date de planification choisie via le calendrier de l'Omnibox — null = comportement par
+  // défaut du backend ("ce soir", résolu dans le fuseau du lieu, cf. TimezoneResolver).
+  selectedDate: null as string | null,
 })
 
 export function toggleTheme() {
@@ -55,6 +61,27 @@ export function togglePanelExpand() {
 export function selectHour(index: number) {
   if (appState.selectedSpot && index >= 0 && index < appState.selectedSpot.hourly.length) {
     appState.selectedHourIndex = index
+  }
+}
+
+export function toggleBortleFilter() {
+  appState.isBortleFilterActive = !appState.isBortleFilterActive
+}
+
+/**
+ * Change la date de planification (calendrier de l'Omnibox, 8 prochains jours) et rafraîchit le
+ * lieu actuellement recherché si il y en a un — les pastilles/le pin/le panel doivent refléter la
+ * nuit choisie, pas rester sur "ce soir".
+ */
+export function setSelectedDate(date: string | null) {
+  appState.selectedDate = date
+
+  if (appState.primarySpot) {
+    void selectLocation(
+      appState.primarySpot.latitude,
+      appState.primarySpot.longitude,
+      appState.primarySpot.name,
+    )
   }
 }
 
@@ -91,31 +118,30 @@ export function locateUser() {
   )
 }
 
-let recommendationsAbortController: AbortController | null = null
+let selectionAbortController: AbortController | null = null
 
 /**
  * Point d'entrée unique quand un lieu est choisi (recherche, géolocalisation) : peuple en un
  * seul lot le pin principal + les pastilles (GET /v1/recommendations) et le détail du SmartPanel
- * (GET /v1/weather + GET /v1/celestial-objects/tonight). Les trois appels partagent le même
- * lieu/nuit déjà synchronisé par la première requête (voir CLAUDE.md backend), donc les deux
- * suivants ne déclenchent pas de nouvel appel météo externe.
+ * (via loadSpotDetail). Les appels partagent le même lieu/nuit déjà synchronisé par la première
+ * requête (voir CLAUDE.md backend), donc les suivants ne déclenchent pas de nouvel appel météo
+ * externe.
  */
 export async function selectLocation(latitude: number, longitude: number, name?: string) {
-  recommendationsAbortController?.abort()
+  selectionAbortController?.abort()
   const controller = new AbortController()
-  recommendationsAbortController = controller
+  selectionAbortController = controller
 
   appState.isLoadingSpots = true
   appState.spotsError = null
 
   try {
-    const [recommendations, todayWeather, targets] = await Promise.all([
-      getRecommendations(latitude, longitude, { signal: controller.signal }),
-      getWeather(latitude, longitude, { signal: controller.signal }),
-      getTonightCelestialObjects(latitude, longitude, {
-        limit: TONIGHT_TARGETS_LIMIT,
+    const [recommendations, detail] = await Promise.all([
+      getRecommendations(latitude, longitude, {
+        date: appState.selectedDate ?? undefined,
         signal: controller.signal,
       }),
+      loadSpotDetail(latitude, longitude, name, controller.signal),
     ])
 
     appState.primarySpot = { latitude, longitude, score: recommendations.origin.score, name }
@@ -123,35 +149,80 @@ export async function selectLocation(latitude: number, longitude: number, name?:
       latitude: spot.latitude,
       longitude: spot.longitude,
       score: spot.score,
+      bortle: spot.bortle,
     }))
 
-    // Le lendemain matin (jusqu'à 8h) fait partie de la même soirée d'observation — deuxième
-    // appel une fois qu'on connaît le jour local réellement résolu par le premier (la clé du jour
-    // dans la réponse), déjà synchronisé en base par le même appel (voir CLAUDE.md backend).
-    const todayDateKey = Object.keys(todayWeather)[0]
-    const tomorrowWeather = todayDateKey
-      ? await getWeather(latitude, longitude, {
-          date: addDays(todayDateKey, 1),
-          signal: controller.signal,
-        })
-      : {}
-
-    const hourly = buildNightlyHourly(todayWeather, tomorrowWeather)
-
-    appState.selectedSpot = {
-      name: name ?? formatCoordinates(latitude, longitude),
-      latitude,
-      longitude,
-      bortle: recommendations.origin.bortle,
-      hourly,
-      targets: targets.map(toTonightTarget),
-    }
-    appState.selectedHourIndex = bestScoreHourIndex(hourly)
+    appState.selectedSpot = { ...detail, bortle: recommendations.origin.bortle }
+    appState.selectedHourIndex = bestScoreHourIndex(detail.hourly)
   } catch (error) {
     if (error instanceof DOMException && error.name === 'AbortError') return
     appState.spotsError = error instanceof Error ? error.message : 'Erreur inconnue'
   } finally {
     appState.isLoadingSpots = false
+  }
+}
+
+/**
+ * Ouvre le SmartPanel pour une pastille de recommandation (pas le lieu principal) : ne refait pas
+ * tourner /v1/recommendations (les pastilles déjà affichées restent inchangées), seulement le
+ * détail (météo + cibles) pour ce point précis — même logique que le pin principal, juste sans
+ * régénérer la liste de spots alternatifs.
+ */
+export async function selectRecommendedSpot(spot: MapPin) {
+  selectionAbortController?.abort()
+  const controller = new AbortController()
+  selectionAbortController = controller
+
+  appState.isLoadingSpots = true
+  appState.spotsError = null
+
+  try {
+    const detail = await loadSpotDetail(spot.latitude, spot.longitude, spot.name, controller.signal)
+    appState.selectedSpot = { ...detail, bortle: spot.bortle ?? null }
+    appState.selectedHourIndex = bestScoreHourIndex(detail.hourly)
+    openSmartPanel()
+  } catch (error) {
+    if (error instanceof DOMException && error.name === 'AbortError') return
+    appState.spotsError = error instanceof Error ? error.message : 'Erreur inconnue'
+  } finally {
+    appState.isLoadingSpots = false
+  }
+}
+
+/**
+ * Météo (aujourd'hui + lendemain matin jusqu'à 8h) et cibles célestes du soir pour un point précis
+ * — factorisé entre selectLocation (lieu principal) et selectRecommendedSpot (pastille), seule la
+ * source du bortle diffère entre les deux appelants.
+ */
+async function loadSpotDetail(
+  latitude: number,
+  longitude: number,
+  name: string | undefined,
+  signal: AbortSignal,
+): Promise<Omit<SelectedSpotDetail, 'bortle'>> {
+  const date = appState.selectedDate ?? undefined
+
+  const [todayWeather, targets] = await Promise.all([
+    getWeather(latitude, longitude, { date, signal }),
+    getTonightCelestialObjects(latitude, longitude, { date, limit: TONIGHT_TARGETS_LIMIT, signal }),
+  ])
+
+  // Le lendemain matin (jusqu'à 8h) fait partie de la même soirée d'observation — deuxième appel
+  // une fois qu'on connaît le jour local réellement résolu par le premier (la clé du jour dans la
+  // réponse), déjà synchronisé en base par le même appel (voir CLAUDE.md backend).
+  const todayDateKey = Object.keys(todayWeather)[0]
+  const tomorrowWeather = todayDateKey
+    ? await getWeather(latitude, longitude, { date: addDays(todayDateKey, 1), signal })
+    : {}
+
+  const hourly = buildNightlyHourly(todayWeather, tomorrowWeather)
+
+  return {
+    name: name ?? formatCoordinates(latitude, longitude),
+    latitude,
+    longitude,
+    hourly,
+    targets: targets.map(toTonightTarget),
   }
 }
 

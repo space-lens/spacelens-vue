@@ -23,7 +23,9 @@ const emit = defineEmits<{
     <div class="flex-1">
       <p class="font-bold text-slate-900 dark:text-slate-200">{{ item.display_name }}</p>
       <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-        <span v-if="item.required_bortle !== null">Visible jusqu'à Bortle {{ item.required_bortle }}</span>
+        <span v-if="item.required_bortle !== null"
+          >Visible jusqu'à Bortle {{ item.required_bortle }}</span
+        >
         <span v-else>Nécessite un instrument</span>
       </p>
     </div>

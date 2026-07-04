@@ -26,7 +26,9 @@ const emit = defineEmits<{
         <span v-if="item.distance_km !== null">{{ item.distance_km }} km</span>
         <span v-if="item.distance_km !== null && item.bortle !== null"> &bull; </span>
         <span v-if="item.bortle !== null">Bortle {{ item.bortle }}</span>
-        <span v-if="item.distance_km === null && item.bortle === null">{{ item.country_code }}</span>
+        <span v-if="item.distance_km === null && item.bortle === null">{{
+          item.country_code
+        }}</span>
       </p>
     </div>
     <i class="fas fa-chevron-right text-slate-400 dark:text-slate-600 text-xs"></i>
