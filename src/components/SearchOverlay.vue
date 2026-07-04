@@ -1,14 +1,97 @@
 <script setup lang="ts">
 import { ref, nextTick, watch } from 'vue'
-import { appState, closeSearchOverlay } from '../composables/useAppState'
-import type { RecentSearch } from '@/types/search'
+import { appState, closeSearchOverlay, selectLocation } from '../composables/useAppState'
+import type { RecentSearch, LocationResult, CelestialObjectResult } from '@/types/search'
 import RecentSearchItem from './search/RecentSearchItem.vue'
+import LocationResultItem from './search/LocationResultItem.vue'
+import CelestialObjectResultItem from './search/CelestialObjectResultItem.vue'
+import { searchOmnibox } from '@/lib/api'
+
+const MIN_QUERY_LENGTH = 2
+const DEBOUNCE_MS = 300
+
+type TabValue = 'all' | 'locations' | 'objects'
+
+const tabs: { value: TabValue; label: string }[] = [
+  { value: 'all', label: 'Tout' },
+  { value: 'locations', label: 'Lieux' },
+  { value: 'objects', label: 'Objets Célestes' },
+]
 
 const searchInput = ref<HTMLInputElement | null>(null)
+const query = ref('')
+const activeTab = ref<TabValue>('all')
 
-const recentSearches: RecentSearch[] = [
-  { title: 'Plateau de Calern', bortle: 3, icon: 'fa-map-marker-alt' },
-]
+const locations = ref<LocationResult[]>([])
+const celestialObjects = ref<CelestialObjectResult[]>([])
+const isSearching = ref(false)
+const searchError = ref<string | null>(null)
+
+const recentSearches: RecentSearch[] = [{ title: 'Plateau de Calern', bortle: 3, icon: 'fa-map-marker-alt' }]
+
+let debounceTimer: ReturnType<typeof setTimeout> | null = null
+let abortController: AbortController | null = null
+
+watch(query, (value) => {
+  if (debounceTimer) clearTimeout(debounceTimer)
+
+  const trimmed = value.trim()
+  if (trimmed.length < MIN_QUERY_LENGTH) {
+    abortController?.abort()
+    locations.value = []
+    celestialObjects.value = []
+    searchError.value = null
+    isSearching.value = false
+    return
+  }
+
+  debounceTimer = setTimeout(() => runSearch(trimmed), DEBOUNCE_MS)
+})
+
+watch(activeTab, () => {
+  const trimmed = query.value.trim()
+  if (trimmed.length >= MIN_QUERY_LENGTH) {
+    runSearch(trimmed)
+  }
+})
+
+async function runSearch(term: string) {
+  abortController?.abort()
+  const controller = new AbortController()
+  abortController = controller
+
+  isSearching.value = true
+  searchError.value = null
+
+  const type = activeTab.value === 'locations' ? 'location' : activeTab.value === 'objects' ? 'celestial_object' : undefined
+
+  try {
+    const result = await searchOmnibox(term, {
+      latitude: appState.userPosition?.lat,
+      longitude: appState.userPosition?.lng,
+      type,
+      signal: controller.signal,
+    })
+    locations.value = result.locations
+    celestialObjects.value = result.celestial_objects
+  } catch (error) {
+    if (error instanceof DOMException && error.name === 'AbortError') return
+    searchError.value = error instanceof Error ? error.message : 'Recherche indisponible'
+  } finally {
+    isSearching.value = false
+  }
+}
+
+function selectLocationResult(item: LocationResult) {
+  closeSearchOverlay()
+  selectLocation(item.latitude, item.longitude, item.name)
+}
+
+function selectCelestialObjectResult() {
+  // Le parcours "objet céleste" (moteur spatio-temporel) n'existe pas encore : on ferme
+  // l'overlay sans action, comme le mockup d'origine, plutôt que de promettre une suite.
+  closeSearchOverlay()
+}
 
 watch(
   () => appState.isSearchOverlayVisible,
@@ -18,6 +101,9 @@ watch(
       setTimeout(() => {
         searchInput.value?.focus()
       }, 300)
+    } else {
+      query.value = ''
+      activeTab.value = 'all'
     }
   },
 )
@@ -29,7 +115,7 @@ watch(
     :class="appState.isSearchOverlayVisible ? 'search-visible' : 'search-hidden'"
   >
     <div
-      class="pt-10 md:pt-6 px-4 md:px-8 pb-4 border-b border-slate-200 dark:border-slate-700 bg-white/50 dark:bg-slate-800/80"
+      class="pt-10 md:pt-6 px-4 md:px-8 pb-0 border-b border-slate-200 dark:border-slate-700 bg-white/50 dark:bg-slate-800/80"
     >
       <div class="max-w-3xl mx-auto flex items-center gap-3">
         <button
@@ -43,21 +129,43 @@ watch(
         >
           <input
             ref="searchInput"
+            v-model="query"
             type="text"
-            placeholder="Que cherchez-vous ?"
+            placeholder="Lieu, objet céleste (ex: M42)..."
             class="bg-transparent border-none outline-none text-slate-900 dark:text-white w-full px-2"
             autocomplete="off"
           />
+          <button
+            v-if="query"
+            class="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+            @click="query = ''"
+          >
+            <i class="fas fa-times"></i>
+          </button>
         </div>
+      </div>
+
+      <div class="max-w-3xl mx-auto flex gap-6 mt-4 px-2 overflow-x-auto no-scrollbar">
+        <button
+          v-for="tab in tabs"
+          :key="tab.value"
+          class="pb-3 whitespace-nowrap font-semibold border-b-2 transition-colors"
+          :class="
+            activeTab === tab.value
+              ? 'text-indigo-500 dark:text-indigo-400 border-indigo-500 dark:border-indigo-400'
+              : 'text-slate-400 dark:text-slate-500 border-transparent hover:text-slate-600 dark:hover:text-slate-300'
+          "
+          @click="activeTab = tab.value"
+        >
+          {{ tab.label }}
+        </button>
       </div>
     </div>
 
     <div class="flex-1 overflow-y-auto p-4 md:p-8">
-      <div class="max-w-3xl mx-auto space-y-6">
-        <div>
-          <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">
-            Lieux récents
-          </h4>
+      <div class="max-w-3xl mx-auto space-y-8 pb-20 mt-2">
+        <div v-if="query.trim().length < MIN_QUERY_LENGTH">
+          <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Lieux récents</h4>
           <RecentSearchItem
             v-for="item in recentSearches"
             :key="item.title"
@@ -65,6 +173,43 @@ watch(
             @select="closeSearchOverlay"
           />
         </div>
+
+        <template v-else>
+          <p v-if="isSearching" class="text-sm text-slate-400 dark:text-slate-500 text-center">Recherche…</p>
+          <p v-else-if="searchError" class="text-sm text-red-500 text-center">{{ searchError }}</p>
+          <template v-else>
+            <div v-if="activeTab !== 'objects' && locations.length > 0">
+              <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Lieux</h4>
+              <div class="space-y-2">
+                <LocationResultItem
+                  v-for="item in locations"
+                  :key="`${item.latitude}-${item.longitude}`"
+                  :item="item"
+                  @select="selectLocationResult"
+                />
+              </div>
+            </div>
+
+            <div v-if="activeTab !== 'locations' && celestialObjects.length > 0">
+              <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Objets célestes</h4>
+              <div class="space-y-2">
+                <CelestialObjectResultItem
+                  v-for="item in celestialObjects"
+                  :key="item.slug"
+                  :item="item"
+                  @select="selectCelestialObjectResult"
+                />
+              </div>
+            </div>
+
+            <p
+              v-if="locations.length === 0 && celestialObjects.length === 0"
+              class="text-sm text-slate-400 dark:text-slate-500 text-center"
+            >
+              Aucun résultat pour « {{ query }} »
+            </p>
+          </template>
+        </template>
       </div>
     </div>
   </div>

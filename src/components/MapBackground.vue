@@ -1,12 +1,20 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref, watch } from 'vue'
 import L from 'leaflet'
-import { appState, openSmartPanel, closeSmartPanel } from '../composables/useAppState'
-import type { Spot } from '@/types/spot'
+import { appState } from '../composables/useAppState'
+import { scoreBgClass } from '@/utils/score'
+import { escapeHtml } from '@/utils/html'
 
 const mapContainer = ref<HTMLElement | null>(null)
 let map: L.Map | null = null
 let userMarker: L.Marker | null = null
+let primaryMarker: L.Marker | null = null
+const recommendationMarkers = L.layerGroup()
+
+// Vue par défaut (France) tant qu'aucun lieu n'a été recherché/géolocalisé.
+const DEFAULT_CENTER: L.LatLngExpression = [46.6, 2.5]
+const DEFAULT_ZOOM = 6
+const SELECTED_LOCATION_ZOOM = 11
 
 const userLocationIcon = L.divIcon({
   className: 'user-location-marker',
@@ -20,49 +28,110 @@ const userLocationIcon = L.divIcon({
   iconAnchor: [10, 10],
 })
 
-const calernSpot: Spot = { title: 'Plateau de Calern', score: 85, bortle: 3 }
-const calernCoordinates: L.LatLngExpression = [43.75, 6.91]
+function scoreLabel(score: number | null): string {
+  return score === null ? '--' : String(score)
+}
 
-onMounted(() => {
-  if (!mapContainer.value) return
+// Pin principal (lieu recherché) : cercle avec le score et un label sous le pin, même design
+// que l'ancien marker Calern codé en dur.
+function createPrimaryIcon(score: number | null, name?: string): L.DivIcon {
+  const bgClass = score === null ? 'bg-slate-400' : scoreBgClass(score)
+  const label = name
+    ? `<span class="mt-1 text-xs font-bold bg-white/90 dark:bg-slate-900/80 px-2 py-0.5 rounded backdrop-blur-md shadow-sm text-slate-900 dark:text-white">${escapeHtml(name)}</span>`
+    : ''
 
-  // Initialize map centered roughly on France/Calern
-  map = L.map(mapContainer.value, {
-    zoomControl: false,
-    attributionControl: false,
-  }).setView(calernCoordinates, 9)
-
-  // OpenStreetMap Tile Layer
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-  }).addTo(map)
-
-  // Add a custom HTML marker for Plateau de Calern
-  const customIcon = L.divIcon({
+  return L.divIcon({
     className: 'custom-marker',
     html: `
       <div class="flex flex-col items-center cursor-pointer group">
-        <div class="w-10 h-10 bg-green-500 rounded-full border-[3px] border-white dark:border-slate-900 shadow-lg pin-pulse flex items-center justify-center z-10">
-          <span class="font-bold text-white dark:text-slate-900 text-sm">${calernSpot.score}</span>
+        <div class="w-10 h-10 ${bgClass} rounded-full border-[3px] border-white dark:border-slate-900 shadow-lg pin-pulse flex items-center justify-center z-10">
+          <span class="font-bold text-white text-sm">${scoreLabel(score)}</span>
         </div>
-        <span class="mt-1 text-xs font-bold bg-white/90 dark:bg-slate-900/80 px-2 py-0.5 rounded backdrop-blur-md shadow-sm text-slate-900 dark:text-white">Calern</span>
+        ${label}
       </div>
     `,
     iconSize: [60, 60],
     iconAnchor: [30, 30],
   })
+}
 
-  const marker = L.marker(calernCoordinates, { icon: customIcon }).addTo(map)
-
-  marker.on('click', (e) => {
-    L.DomEvent.stopPropagation(e)
-    openSmartPanel(calernSpot.title, calernSpot.score, calernSpot.bortle)
+// Pastille de recommandation : plus petite, pas de label, pas de pulse (réservé au pin
+// principal pour ne pas avoir 10 pastilles clignotantes en même temps).
+function createRecommendationIcon(score: number): L.DivIcon {
+  return L.divIcon({
+    className: 'custom-marker',
+    html: `
+      <div class="w-8 h-8 ${scoreBgClass(score)} rounded-full border-2 border-white dark:border-slate-900 shadow-md flex items-center justify-center cursor-pointer">
+        <span class="font-bold text-white text-xs">${score}</span>
+      </div>
+    `,
+    iconSize: [32, 32],
+    iconAnchor: [16, 16],
   })
+}
 
-  map.on('click', () => {
-    closeSmartPanel()
-  })
+// Centre la carte sur le pin cliqué, sans changer le zoom (contrairement à la sélection d'un
+// nouveau lieu, qui fait un flyTo avec zoom, cf. watch sur primarySpot).
+function centerOn(latLng: L.LatLngExpression) {
+  map?.panTo(latLng, { animate: true })
+}
+
+onMounted(() => {
+  if (!mapContainer.value) return
+
+  map = L.map(mapContainer.value, {
+    zoomControl: false,
+    attributionControl: false,
+  }).setView(DEFAULT_CENTER, DEFAULT_ZOOM)
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+  }).addTo(map)
+
+  recommendationMarkers.addTo(map)
 })
+
+watch(
+  () => appState.primarySpot,
+  (spot) => {
+    if (!map) return
+
+    if (primaryMarker) {
+      primaryMarker.remove()
+      primaryMarker = null
+    }
+
+    if (!spot) return
+
+    const latLng: L.LatLngExpression = [spot.latitude, spot.longitude]
+    primaryMarker = L.marker(latLng, { icon: createPrimaryIcon(spot.score, spot.name), zIndexOffset: 500 }).addTo(map)
+    primaryMarker.on('click', (e) => {
+      L.DomEvent.stopPropagation(e)
+      centerOn(latLng)
+    })
+
+    map.flyTo(latLng, SELECTED_LOCATION_ZOOM)
+  },
+)
+
+watch(
+  () => appState.recommendedSpots,
+  (spots) => {
+    recommendationMarkers.clearLayers()
+
+    for (const spot of spots) {
+      const latLng: L.LatLngExpression = [spot.latitude, spot.longitude]
+      if (spot.score === null) continue
+
+      const marker = L.marker(latLng, { icon: createRecommendationIcon(spot.score) })
+      marker.on('click', (e) => {
+        L.DomEvent.stopPropagation(e)
+        centerOn(latLng)
+      })
+      recommendationMarkers.addLayer(marker)
+    }
+  },
+)
 
 watch(
   () => appState.userPosition,
@@ -79,7 +148,11 @@ watch(
       userMarker = L.marker(latLng, { icon: userLocationIcon, zIndexOffset: 1000 }).addTo(map)
     }
 
-    map.flyTo(latLng, 12)
+    // Ne recentre sur la position utilisateur que s'il n'y a pas déjà un lieu sélectionné —
+    // sinon "Me localiser" écraserait le lieu qu'on vient de rechercher.
+    if (!appState.primarySpot) {
+      map.flyTo(latLng, 12)
+    }
   },
 )
 
