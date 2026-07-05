@@ -118,17 +118,14 @@ watch(
   },
 )
 
-// Constante locale : reflète le libellé statique de la pastille "Bortle ≤ 4" de l'Omnibox.
-const BORTLE_FILTER_MAX = 4
-
 watch(
-  [() => appState.recommendedSpots, () => appState.isBortleFilterActive],
-  ([spots, bortleFilterActive]) => {
+  [() => appState.recommendedSpots, () => appState.bortleMaxFilter],
+  ([spots, bortleMaxFilter]) => {
     recommendationMarkers.clearLayers()
 
     for (const spot of spots) {
       if (spot.score === null) continue
-      if (bortleFilterActive && spot.bortle != null && spot.bortle > BORTLE_FILTER_MAX) continue
+      if (bortleMaxFilter !== null && spot.bortle != null && spot.bortle > bortleMaxFilter) continue
 
       const latLng: L.LatLngExpression = [spot.latitude, spot.longitude]
       const marker = L.marker(latLng, { icon: createRecommendationIcon(spot.score) })

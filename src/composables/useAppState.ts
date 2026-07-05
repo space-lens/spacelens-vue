@@ -28,9 +28,10 @@ export const appState = reactive({
   // sert qu'au placement du marqueur sur la carte).
   selectedSpot: null as SelectedSpotDetail | null,
   selectedHourIndex: 0,
-  // Filtre "Bortle ≤ 4" de l'Omnibox : purement client, masque les pastilles de recommandation
-  // dont le Bortle dépasse 4 (déjà connu sur chaque MapPin, aucun appel supplémentaire).
-  isBortleFilterActive: false,
+  // Filtre Bortle de l'Omnibox : purement client, masque les pastilles de recommandation dont le
+  // Bortle dépasse ce seuil (déjà connu sur chaque MapPin, aucun appel supplémentaire). null =
+  // aucun filtre, toutes les pastilles affichées.
+  bortleMaxFilter: null as number | null,
   // Date de planification choisie via le calendrier de l'Omnibox — null = comportement par
   // défaut du backend ("ce soir", résolu dans le fuseau du lieu, cf. TimezoneResolver).
   selectedDate: null as string | null,
@@ -64,8 +65,8 @@ export function selectHour(index: number) {
   }
 }
 
-export function toggleBortleFilter() {
-  appState.isBortleFilterActive = !appState.isBortleFilterActive
+export function setBortleMaxFilter(value: number | null) {
+  appState.bortleMaxFilter = value
 }
 
 /**
