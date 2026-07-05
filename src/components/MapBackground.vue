@@ -17,6 +17,21 @@ let userMarker: L.Marker | null = null
 let primaryMarker: L.Marker | null = null
 const recommendationMarkers = L.layerGroup()
 
+// Classes Bortle 1-9 (pollution lumineuse), pyramide de tuiles produite par
+// ../astro-light-pipeline (voir son CLAUDE.md) — base URL différente en dev (symlink local vers
+// public/tiles-bortle) et en prod (CDN), cf. .env.example.
+const BORTLE_TILES_BASE_URL = import.meta.env.VITE_BORTLE_TILES_BASE_URL as string | undefined
+const BORTLE_TILES_MIN_ZOOM = 3
+const BORTLE_TILES_MAX_ZOOM = 11
+const bortleLayer = BORTLE_TILES_BASE_URL
+  ? L.tileLayer(`${BORTLE_TILES_BASE_URL.replace(/\/$/, '')}/{z}/{x}/{y}.png`, {
+      minZoom: BORTLE_TILES_MIN_ZOOM,
+      maxZoom: BORTLE_TILES_MAX_ZOOM,
+      opacity: 0.5,
+      attribution: 'Pollution lumineuse : VIIRS/NASA (via astro-light-pipeline)',
+    })
+  : null
+
 // Vue par défaut (France) tant qu'aucun lieu n'a été recherché/géolocalisé.
 const DEFAULT_CENTER: L.LatLngExpression = [46.6, 2.5]
 const DEFAULT_ZOOM = 6
@@ -94,6 +109,10 @@ onMounted(() => {
     maxZoom: 19,
   }).addTo(map)
 
+  if (bortleLayer && appState.bortleLayerVisible) {
+    bortleLayer.addTo(map)
+  }
+
   recommendationMarkers.addTo(map)
 
   // Clic direct sur la carte (pas un marker, cf. stopPropagation sur leurs handlers) : si un objet
@@ -153,6 +172,19 @@ watch(
         void selectRecommendedSpot(spot)
       })
       recommendationMarkers.addLayer(marker)
+    }
+  },
+)
+
+watch(
+  () => appState.bortleLayerVisible,
+  (visible) => {
+    if (!map || !bortleLayer) return
+
+    if (visible) {
+      bortleLayer.addTo(map)
+    } else {
+      bortleLayer.remove()
     }
   },
 )

@@ -87,7 +87,14 @@ export const appState = reactive({
   pendingCelestialObject: null as { slug: string; displayName: string } | null,
   // Résultat du moteur spatio-temporel pour l'objet + lieu de référence choisis.
   objectSuggestions: null as ObjectSuggestionsState | null,
+  // Layer Bortle (pollution lumineuse) sur la carte — visible par défaut (recommandation du
+  // pipeline astro-light-pipeline), togglable via le bouton calque.
+  bortleLayerVisible: true,
 })
+
+export function toggleBortleLayer() {
+  appState.bortleLayerVisible = !appState.bortleLayerVisible
+}
 
 export function toggleTheme() {
   appState.isDarkMode = !appState.isDarkMode

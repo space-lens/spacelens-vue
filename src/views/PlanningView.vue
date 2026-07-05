@@ -8,7 +8,7 @@ import LoadingIndicator from '../components/LoadingIndicator.vue'
 import MapClickModal from '../components/MapClickModal.vue'
 import ReferenceLocationPrompt from '../components/ReferenceLocationPrompt.vue'
 import ObjectSuggestionsPanel from '../components/ObjectSuggestionsPanel.vue'
-import { appState, toggleTheme, locateUser } from '../composables/useAppState'
+import { appState, toggleTheme, locateUser, toggleBortleLayer } from '../composables/useAppState'
 </script>
 
 <template>
@@ -37,7 +37,14 @@ import { appState, toggleTheme, locateUser } from '../composables/useAppState'
           ></i>
         </button>
         <button
-          class="w-10 h-10 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border border-white dark:border-slate-600 rounded-full flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white shadow-lg"
+          @click="toggleBortleLayer"
+          class="w-10 h-10 backdrop-blur-md border rounded-full flex items-center justify-center shadow-lg transition-colors"
+          :class="
+            appState.bortleLayerVisible
+              ? 'bg-indigo-500 border-indigo-500 text-white'
+              : 'bg-white/90 dark:bg-slate-800/90 border-white dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
+          "
+          title="Pollution lumineuse (Bortle)"
         >
           <i class="fas fa-layer-group"></i>
         </button>
