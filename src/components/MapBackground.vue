@@ -6,6 +6,7 @@ import {
   openSmartPanel,
   selectRecommendedSpot,
   openMapClickModal,
+  chooseReferenceLocationForPendingObject,
 } from '../composables/useAppState'
 import { scoreBgClass } from '@/utils/score'
 import { escapeHtml } from '@/utils/html'
@@ -95,10 +96,16 @@ onMounted(() => {
 
   recommendationMarkers.addTo(map)
 
-  // Clic direct sur la carte (pas un marker, cf. stopPropagation sur leurs handlers) : ouvre la
-  // modale de validation du point avant tout calcul de score.
+  // Clic direct sur la carte (pas un marker, cf. stopPropagation sur leurs handlers) : si un objet
+  // céleste est en attente d'un lieu de référence (Parcours 2, sélection dans l'Omnibox), le clic
+  // lance le moteur spatio-temporel pour ce lieu ; sinon comportement habituel (Parcours 1, modale
+  // de validation avant calcul de score).
   map.on('click', (e: L.LeafletMouseEvent) => {
-    void openMapClickModal(e.latlng.lat, e.latlng.lng)
+    if (appState.pendingCelestialObject) {
+      void chooseReferenceLocationForPendingObject(e.latlng.lat, e.latlng.lng)
+    } else {
+      void openMapClickModal(e.latlng.lat, e.latlng.lng)
+    }
   })
 })
 

@@ -4,7 +4,14 @@ import type { PanelState, HourlyWeather, TonightTarget, SelectedSpotDetail } fro
 import type { WeatherResponse, WeatherDayEntry } from '@/types/weather'
 import type { TonightTargetApiItem } from '@/types/celestialTonight'
 import type { LocationResolveRejectionReason } from '@/types/location'
-import { getRecommendations, getWeather, getTonightCelestialObjects, resolveLocation } from '@/lib/api'
+import type { SpatioTemporalSuggestion } from '@/types/celestialObjectSuggestions'
+import {
+  getRecommendations,
+  getWeather,
+  getTonightCelestialObjects,
+  resolveLocation,
+  getSpatioTemporalSuggestions,
+} from '@/lib/api'
 
 // Une soirée d'observation déborde sur le lendemain matin : on va chercher les créneaux nocturnes
 // du lendemain jusqu'à cette heure plutôt que de couper la nuit à minuit.
@@ -33,6 +40,22 @@ export type MapClickModalState =
     }
   | { status: 'error'; latitude: number; longitude: number; message: string }
 
+// État du panneau de suggestions spatio-temporelles (Parcours 2, approche par l'objet) : 'loading'
+// pendant l'appel à GET /v1/celestial-objects/{slug}/spatio-temporal-suggestions, puis 'loaded'
+// (classement date+lieu) ou 'error'.
+export type ObjectSuggestionsState =
+  | { status: 'loading'; slug: string; displayName: string }
+  | {
+      status: 'loaded'
+      slug: string
+      displayName: string
+      requiredBortle: number | null
+      daysScanned: number
+      lightPollutionCoverageAvailable: boolean
+      suggestions: SpatioTemporalSuggestion[]
+    }
+  | { status: 'error'; slug: string; displayName: string; message: string }
+
 export const appState = reactive({
   isDarkMode: false,
   isSearchOverlayVisible: false,
@@ -59,6 +82,11 @@ export const appState = reactive({
   selectedDate: null as string | null,
   // Modale de validation d'un point cliqué sur la carte — null = aucune modale affichée.
   mapClickModal: null as MapClickModalState | null,
+  // Objet céleste choisi dans l'Omnibox, en attente d'un lieu de référence (clic carte ou
+  // géolocalisation) pour lancer le moteur spatio-temporel — null = pas de sélection en attente.
+  pendingCelestialObject: null as { slug: string; displayName: string } | null,
+  // Résultat du moteur spatio-temporel pour l'objet + lieu de référence choisis.
+  objectSuggestions: null as ObjectSuggestionsState | null,
 })
 
 export function toggleTheme() {
@@ -160,6 +188,89 @@ export async function confirmMapClickModal() {
   appState.mapClickModal = null
 
   await selectLocation(latitude, longitude, name ?? undefined)
+  openSmartPanel()
+}
+
+/**
+ * Choix d'un objet céleste dans l'Omnibox (Parcours 2) : ferme l'overlay de recherche et attend
+ * un lieu de référence (clic carte ou géolocalisation, cf. ReferenceLocationPrompt) avant de
+ * lancer le moteur spatio-temporel — pas de calcul tant que le lieu n'est pas fixé explicitement.
+ */
+export function selectCelestialObjectForPlanning(slug: string, displayName: string) {
+  closeSearchOverlay()
+  appState.pendingCelestialObject = { slug, displayName }
+}
+
+export function cancelPendingCelestialObject() {
+  appState.pendingCelestialObject = null
+}
+
+/**
+ * Lieu de référence choisi (clic carte) pour l'objet en attente : lance le moteur spatio-temporel
+ * et affiche le classement dans ObjectSuggestionsPanel.
+ */
+export async function chooseReferenceLocationForPendingObject(latitude: number, longitude: number) {
+  const pending = appState.pendingCelestialObject
+  if (!pending) return
+
+  appState.pendingCelestialObject = null
+  appState.objectSuggestions = { status: 'loading', slug: pending.slug, displayName: pending.displayName }
+
+  try {
+    const result = await getSpatioTemporalSuggestions(pending.slug, latitude, longitude)
+
+    appState.objectSuggestions = {
+      status: 'loaded',
+      slug: pending.slug,
+      displayName: pending.displayName,
+      requiredBortle: result.object.required_bortle,
+      daysScanned: result.days_scanned,
+      lightPollutionCoverageAvailable: result.light_pollution_coverage_available,
+      suggestions: result.suggestions,
+    }
+  } catch (error) {
+    appState.objectSuggestions = {
+      status: 'error',
+      slug: pending.slug,
+      displayName: pending.displayName,
+      message: error instanceof Error ? error.message : 'Erreur inconnue',
+    }
+  }
+}
+
+/** Variante géolocalisation du choix de lieu de référence (bouton "Utiliser ma position"). */
+export function requestGeolocationForPendingObject() {
+  if (!navigator.geolocation) {
+    appState.locationError = "La géolocalisation n'est pas supportée par ce navigateur."
+    return
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      appState.userPosition = { lat: position.coords.latitude, lng: position.coords.longitude }
+      void chooseReferenceLocationForPendingObject(position.coords.latitude, position.coords.longitude)
+    },
+    (error) => {
+      appState.locationError = error.message
+    },
+    { enableHighAccuracy: true, timeout: 10000 },
+  )
+}
+
+export function closeObjectSuggestions() {
+  appState.objectSuggestions = null
+}
+
+/**
+ * Choix d'une suggestion précise (date + lieu) : fixe la date de planification et réutilise
+ * exactement le pipeline de sélection existant (recommandations + détail météo/cibles), comme le
+ * clic sur la carte (confirmMapClickModal) ou une pastille de recommandation.
+ */
+export async function selectObjectSuggestion(suggestion: SpatioTemporalSuggestion) {
+  appState.objectSuggestions = null
+  appState.selectedDate = suggestion.date
+
+  await selectLocation(suggestion.latitude, suggestion.longitude)
   openSmartPanel()
 }
 

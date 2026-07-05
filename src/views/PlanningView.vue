@@ -6,6 +6,8 @@ import SmartPanel from '../components/panel/SmartPanel.vue'
 import SearchOverlay from '../components/SearchOverlay.vue'
 import LoadingIndicator from '../components/LoadingIndicator.vue'
 import MapClickModal from '../components/MapClickModal.vue'
+import ReferenceLocationPrompt from '../components/ReferenceLocationPrompt.vue'
+import ObjectSuggestionsPanel from '../components/ObjectSuggestionsPanel.vue'
 import { appState, toggleTheme, locateUser } from '../composables/useAppState'
 </script>
 
@@ -50,6 +52,12 @@ import { appState, toggleTheme, locateUser } from '../composables/useAppState'
 
       <!-- Modale de validation d'un point cliqué sur la carte -->
       <MapClickModal />
+
+      <!-- Parcours 2 : demande de lieu de référence après choix d'un objet céleste -->
+      <ReferenceLocationPrompt />
+
+      <!-- Parcours 2 : classement des suggestions spatio-temporelles -->
+      <ObjectSuggestionsPanel />
 
       <!-- LAYER 3 : SEARCH OVERLAY -->
       <SearchOverlay />

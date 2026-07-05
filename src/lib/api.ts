@@ -3,6 +3,7 @@ import type { RecommendationData } from '@/types/recommendation'
 import type { WeatherResponse } from '@/types/weather'
 import type { TonightTargetApiItem } from '@/types/celestialTonight'
 import type { LocationResolveResult } from '@/types/location'
+import type { SpatioTemporalSuggestionsResponse } from '@/types/celestialObjectSuggestions'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
 
@@ -79,6 +80,33 @@ export async function resolveLocation(
   }
 
   const json: { data: LocationResolveResult } = await response.json()
+  return json.data
+}
+
+export interface SpatioTemporalSuggestionsOptions {
+  limit?: number
+  signal?: AbortSignal
+}
+
+export async function getSpatioTemporalSuggestions(
+  slug: string,
+  latitude: number,
+  longitude: number,
+  options: SpatioTemporalSuggestionsOptions = {},
+): Promise<SpatioTemporalSuggestionsResponse> {
+  const params = new URLSearchParams({ latitude: String(latitude), longitude: String(longitude) })
+  if (options.limit) params.set('limit', String(options.limit))
+
+  const response = await fetch(
+    `${API_BASE_URL}/v1/celestial-objects/${slug}/spatio-temporal-suggestions?${params}`,
+    { signal: options.signal },
+  )
+
+  if (!response.ok) {
+    throw new Error(`Les suggestions sont indisponibles (${response.status})`)
+  }
+
+  const json: { data: SpatioTemporalSuggestionsResponse } = await response.json()
   return json.data
 }
 

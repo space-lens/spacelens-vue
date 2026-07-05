@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import { ref, nextTick, watch } from 'vue'
-import { appState, closeSearchOverlay, selectLocation } from '../composables/useAppState'
+import {
+  appState,
+  closeSearchOverlay,
+  selectLocation,
+  selectCelestialObjectForPlanning,
+} from '../composables/useAppState'
 import type { RecentSearch, LocationResult, CelestialObjectResult } from '@/types/search'
 import RecentSearchItem from './search/RecentSearchItem.vue'
 import LocationResultItem from './search/LocationResultItem.vue'
@@ -94,10 +99,8 @@ function selectLocationResult(item: LocationResult) {
   selectLocation(item.latitude, item.longitude, item.name)
 }
 
-function selectCelestialObjectResult() {
-  // Le parcours "objet céleste" (moteur spatio-temporel) n'existe pas encore : on ferme
-  // l'overlay sans action, comme le mockup d'origine, plutôt que de promettre une suite.
-  closeSearchOverlay()
+function selectCelestialObjectResult(item: CelestialObjectResult) {
+  selectCelestialObjectForPlanning(item.slug, item.display_name)
 }
 
 watch(
