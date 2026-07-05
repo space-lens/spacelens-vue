@@ -1,7 +1,12 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref, watch } from 'vue'
 import L from 'leaflet'
-import { appState, openSmartPanel, selectRecommendedSpot } from '../composables/useAppState'
+import {
+  appState,
+  openSmartPanel,
+  selectRecommendedSpot,
+  openMapClickModal,
+} from '../composables/useAppState'
 import { scoreBgClass } from '@/utils/score'
 import { escapeHtml } from '@/utils/html'
 
@@ -89,6 +94,12 @@ onMounted(() => {
   }).addTo(map)
 
   recommendationMarkers.addTo(map)
+
+  // Clic direct sur la carte (pas un marker, cf. stopPropagation sur leurs handlers) : ouvre la
+  // modale de validation du point avant tout calcul de score.
+  map.on('click', (e: L.LeafletMouseEvent) => {
+    void openMapClickModal(e.latlng.lat, e.latlng.lng)
+  })
 })
 
 watch(

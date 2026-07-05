@@ -5,6 +5,7 @@ import MapBackground from '../components/MapBackground.vue'
 import SmartPanel from '../components/panel/SmartPanel.vue'
 import SearchOverlay from '../components/SearchOverlay.vue'
 import LoadingIndicator from '../components/LoadingIndicator.vue'
+import MapClickModal from '../components/MapClickModal.vue'
 import { appState, toggleTheme, locateUser } from '../composables/useAppState'
 </script>
 
@@ -46,6 +47,9 @@ import { appState, toggleTheme, locateUser } from '../composables/useAppState'
       <!-- Indicateur de chargement (sélection d'un lieu : /v1/recommendations peut prendre
            plusieurs secondes, plusieurs appels météo réels enchaînés) -->
       <LoadingIndicator />
+
+      <!-- Modale de validation d'un point cliqué sur la carte -->
+      <MapClickModal />
 
       <!-- LAYER 3 : SEARCH OVERLAY -->
       <SearchOverlay />

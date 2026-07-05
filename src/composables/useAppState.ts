@@ -3,13 +3,35 @@ import type { Coordinates, MapPin } from '@/types/spot'
 import type { PanelState, HourlyWeather, TonightTarget, SelectedSpotDetail } from '@/types/panel'
 import type { WeatherResponse, WeatherDayEntry } from '@/types/weather'
 import type { TonightTargetApiItem } from '@/types/celestialTonight'
-import { getRecommendations, getWeather, getTonightCelestialObjects } from '@/lib/api'
+import type { LocationResolveRejectionReason } from '@/types/location'
+import { getRecommendations, getWeather, getTonightCelestialObjects, resolveLocation } from '@/lib/api'
 
 // Une soirée d'observation déborde sur le lendemain matin : on va chercher les créneaux nocturnes
 // du lendemain jusqu'à cette heure plutôt que de couper la nuit à minuit.
 const NEXT_DAY_HOURLY_CUTOFF = '08:00'
 
 const TONIGHT_TARGETS_LIMIT = 5
+
+// État de la modale de validation d'un point cliqué sur la carte (Parcours 1, clic direct) :
+// 'loading' pendant l'appel à GET /v1/locations/resolve, puis 'valid' (nom/bortle éventuels,
+// prêt pour confirmation) ou 'invalid' (mer/hors couverture, rejeté avant tout calcul coûteux)
+// selon la réponse, ou 'error' pour un échec réseau distinct des rejets métier du backend.
+export type MapClickModalState =
+  | { status: 'loading'; latitude: number; longitude: number }
+  | {
+      status: 'valid'
+      latitude: number
+      longitude: number
+      name: string | null
+      bortle: number | null
+    }
+  | {
+      status: 'invalid'
+      latitude: number
+      longitude: number
+      reason: LocationResolveRejectionReason
+    }
+  | { status: 'error'; latitude: number; longitude: number; message: string }
 
 export const appState = reactive({
   isDarkMode: false,
@@ -35,6 +57,8 @@ export const appState = reactive({
   // Date de planification choisie via le calendrier de l'Omnibox — null = comportement par
   // défaut du backend ("ce soir", résolu dans le fuseau du lieu, cf. TimezoneResolver).
   selectedDate: null as string | null,
+  // Modale de validation d'un point cliqué sur la carte — null = aucune modale affichée.
+  mapClickModal: null as MapClickModalState | null,
 })
 
 export function toggleTheme() {
@@ -84,6 +108,59 @@ export function setSelectedDate(date: string | null) {
       appState.primarySpot.name,
     )
   }
+}
+
+let mapClickAbortController: AbortController | null = null
+
+/**
+ * Clic direct sur la carte (pas une recherche/pastille) : résout d'abord le point via
+ * GET /v1/locations/resolve (rapide, pas d'appel météo externe) avant d'afficher la modale de
+ * validation — évite de déclencher un calcul de score coûteux pour un point en mer ou hors
+ * couverture pollution lumineuse.
+ */
+export async function openMapClickModal(latitude: number, longitude: number) {
+  mapClickAbortController?.abort()
+  const controller = new AbortController()
+  mapClickAbortController = controller
+
+  appState.mapClickModal = { status: 'loading', latitude, longitude }
+
+  try {
+    const result = await resolveLocation(latitude, longitude, { signal: controller.signal })
+
+    appState.mapClickModal =
+      result.valid && result.reason === null
+        ? { status: 'valid', latitude, longitude, name: result.name, bortle: result.bortle }
+        : { status: 'invalid', latitude, longitude, reason: result.reason ?? 'sea_point' }
+  } catch (error) {
+    if (error instanceof DOMException && error.name === 'AbortError') return
+    appState.mapClickModal = {
+      status: 'error',
+      latitude,
+      longitude,
+      message: error instanceof Error ? error.message : 'Erreur inconnue',
+    }
+  }
+}
+
+export function closeMapClickModal() {
+  mapClickAbortController?.abort()
+  appState.mapClickModal = null
+}
+
+/**
+ * Validation du point par l'utilisateur : réutilise exactement le pipeline de sélection d'un
+ * lieu (recommandations + détail météo/cibles), puis ouvre le SmartPanel une fois les données
+ * chargées — pas avant, sinon le panel s'ouvrirait sur le spot encore sélectionné précédemment.
+ */
+export async function confirmMapClickModal() {
+  if (appState.mapClickModal?.status !== 'valid') return
+
+  const { latitude, longitude, name } = appState.mapClickModal
+  appState.mapClickModal = null
+
+  await selectLocation(latitude, longitude, name ?? undefined)
+  openSmartPanel()
 }
 
 export function openSearchOverlay() {
@@ -296,7 +373,7 @@ function toTonightTarget(item: TonightTargetApiItem): TonightTarget {
   }
 }
 
-function formatCoordinates(latitude: number, longitude: number): string {
+export function formatCoordinates(latitude: number, longitude: number): string {
   return `${latitude.toFixed(3)}°, ${longitude.toFixed(3)}°`
 }
 

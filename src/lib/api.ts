@@ -2,6 +2,7 @@ import type { SearchResults } from '@/types/search'
 import type { RecommendationData } from '@/types/recommendation'
 import type { WeatherResponse } from '@/types/weather'
 import type { TonightTargetApiItem } from '@/types/celestialTonight'
+import type { LocationResolveResult } from '@/types/location'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
 
@@ -55,6 +56,29 @@ export async function getRecommendations(
   }
 
   const json: { data: RecommendationData } = await response.json()
+  return json.data
+}
+
+export interface ResolveLocationOptions {
+  signal?: AbortSignal
+}
+
+export async function resolveLocation(
+  latitude: number,
+  longitude: number,
+  options: ResolveLocationOptions = {},
+): Promise<LocationResolveResult> {
+  const params = new URLSearchParams({ latitude: String(latitude), longitude: String(longitude) })
+
+  const response = await fetch(`${API_BASE_URL}/v1/locations/resolve?${params}`, {
+    signal: options.signal,
+  })
+
+  if (!response.ok) {
+    throw new Error(`La résolution du point cliqué a échoué (${response.status})`)
+  }
+
+  const json: { data: LocationResolveResult } = await response.json()
   return json.data
 }
 
