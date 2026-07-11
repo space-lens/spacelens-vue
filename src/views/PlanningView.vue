@@ -2,9 +2,14 @@
 import Navigation from '../components/Navigation.vue'
 import Omnibox from '../components/Omnibox.vue'
 import MapBackground from '../components/MapBackground.vue'
+import BortleLegend from '../components/BortleLegend.vue'
 import SmartPanel from '../components/panel/SmartPanel.vue'
 import SearchOverlay from '../components/SearchOverlay.vue'
-import { toggleTheme } from '../composables/useAppState'
+import LoadingIndicator from '../components/LoadingIndicator.vue'
+import MapClickModal from '../components/MapClickModal.vue'
+import ReferenceLocationPrompt from '../components/ReferenceLocationPrompt.vue'
+import ObjectSuggestionsPanel from '../components/ObjectSuggestionsPanel.vue'
+import { appState, toggleTheme, locateUser, toggleBortleLayer } from '../composables/useAppState'
 </script>
 
 <template>
@@ -23,19 +28,47 @@ import { toggleTheme } from '../composables/useAppState'
       <!-- Contrôles Carte -->
       <div class="absolute top-[40%] right-4 z-20 flex flex-col gap-3 pointer-events-auto">
         <button
-          class="w-10 h-10 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border border-white dark:border-slate-600 rounded-full flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white shadow-lg"
+          @click="locateUser"
+          :disabled="appState.isLocating"
+          class="w-10 h-10 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border border-white dark:border-slate-600 rounded-full flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white shadow-lg disabled:opacity-60"
         >
-          <i class="fas fa-location-crosshairs"></i>
+          <i
+            class="fas"
+            :class="appState.isLocating ? 'fa-spinner fa-spin' : 'fa-location-crosshairs'"
+          ></i>
         </button>
         <button
-          class="w-10 h-10 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border border-white dark:border-slate-600 rounded-full flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white shadow-lg"
+          @click="toggleBortleLayer"
+          class="w-10 h-10 backdrop-blur-md border rounded-full flex items-center justify-center shadow-lg transition-colors"
+          :class="
+            appState.bortleLayerVisible
+              ? 'bg-indigo-500 border-indigo-500 text-white'
+              : 'bg-white/90 dark:bg-slate-800/90 border-white dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
+          "
+          title="Pollution lumineuse (Bortle)"
         >
           <i class="fas fa-layer-group"></i>
         </button>
       </div>
 
+      <!-- Légende des couleurs du layer Bortle, affichée seulement quand il est actif -->
+      <BortleLegend v-if="appState.bortleLayerVisible" />
+
       <!-- LAYER 2 : SMART PANEL -->
       <SmartPanel />
+
+      <!-- Indicateur de chargement (sélection d'un lieu : /v1/recommendations peut prendre
+           plusieurs secondes, plusieurs appels météo réels enchaînés) -->
+      <LoadingIndicator />
+
+      <!-- Modale de validation d'un point cliqué sur la carte -->
+      <MapClickModal />
+
+      <!-- Parcours 2 : demande de lieu de référence après choix d'un objet céleste -->
+      <ReferenceLocationPrompt />
+
+      <!-- Parcours 2 : classement des suggestions spatio-temporelles -->
+      <ObjectSuggestionsPanel />
 
       <!-- LAYER 3 : SEARCH OVERLAY -->
       <SearchOverlay />
