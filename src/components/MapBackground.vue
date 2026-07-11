@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref, watch } from 'vue'
 import L from 'leaflet'
+import { PMTiles, leafletRasterLayer } from 'pmtiles'
 import {
   appState,
   openSmartPanel,
@@ -17,16 +18,26 @@ let userMarker: L.Marker | null = null
 let primaryMarker: L.Marker | null = null
 const recommendationMarkers = L.layerGroup()
 
-// Classes Bortle 1-9 (pollution lumineuse), pyramide de tuiles produite par
-// ../astro-light-pipeline (voir son CLAUDE.md) — base URL différente en dev (symlink local vers
-// public/tiles-bortle) et en prod (CDN), cf. .env.example.
-const BORTLE_TILES_BASE_URL = import.meta.env.VITE_BORTLE_TILES_BASE_URL as string | undefined
+// Classes Bortle 1-9 (pollution lumineuse), archive PMTiles unique produite par
+// ../astro-light-pipeline (voir son CLAUDE.md) à partir de l'ancienne pyramide de tuiles PNG.
+// Un seul fichier fetché en HTTP range-requests par le navigateur, cross-origin en prod (CDN) —
+// le CDN doit donc renvoyer des en-têtes CORS (Access-Control-Allow-Origin + Range autorisé en
+// requête/réponse), sans quoi le fetch échoue silencieusement (tuiles absentes, pas d'erreur
+// réseau visible côté onglet). En local, symlink same-origin (public/tiles_bortle.pmtiles →
+// ../../astro-light-pipeline/data/exports, cf. .gitignore) pour éviter la question CORS en dev.
+const BORTLE_PMTILES_URL = import.meta.env.VITE_BORTLE_PMTILES_URL as string | undefined
 const BORTLE_TILES_MIN_ZOOM = 3
-const BORTLE_TILES_MAX_ZOOM = 11
-const bortleLayer = BORTLE_TILES_BASE_URL
-  ? L.tileLayer(`${BORTLE_TILES_BASE_URL.replace(/\/$/, '')}/{z}/{x}/{y}.png`, {
+// L'archive ne contient des tuiles natives que jusqu'à z11 (cf. astro-light-pipeline). Passer
+// ça en `maxZoom` (comme avant) plafonne le zoom de TOUTE la carte à 11 tant que ce layer est
+// affiché — Leaflet prend le minimum des `maxZoom` des layers actifs comme limite globale
+// (getMaxZoom()/_layersMaxZoom), ce n'est pas propre à ce layer. `maxNativeZoom` évite ça : au-delà
+// de z11, Leaflet réaffiche les tuiles z11 zoomées (légèrement floues) au lieu de faire disparaître
+// le layer et bloquer le zoom.
+const BORTLE_TILES_MAX_NATIVE_ZOOM = 15
+const bortleLayer = BORTLE_PMTILES_URL
+  ? leafletRasterLayer(new PMTiles(BORTLE_PMTILES_URL), {
       minZoom: BORTLE_TILES_MIN_ZOOM,
-      maxZoom: BORTLE_TILES_MAX_ZOOM,
+      maxNativeZoom: BORTLE_TILES_MAX_NATIVE_ZOOM,
       opacity: 0.5,
       attribution: 'Pollution lumineuse : VIIRS/NASA (via astro-light-pipeline)',
     })

@@ -1,21 +1,9 @@
 <script setup lang="ts">
+import { BORTLE_LEVELS } from '@/utils/bortle'
+
 const emit = defineEmits<{
   select: [value: number | null]
 }>()
-
-// Descriptions courtes de l'échelle Bortle (1 = ciel le plus pur, 9 = plein centre-ville) — aide
-// à choisir un seuil sans connaître l'échelle par cœur.
-const BORTLE_LEVELS: { value: number; label: string }[] = [
-  { value: 1, label: "Ciel d'exception" },
-  { value: 2, label: 'Ciel très sombre' },
-  { value: 3, label: 'Ciel rural' },
-  { value: 4, label: 'Rural/périurbain' },
-  { value: 5, label: 'Périurbain' },
-  { value: 6, label: 'Urbain clair' },
-  { value: 7, label: 'Urbain' },
-  { value: 8, label: 'Urbain dense' },
-  { value: 9, label: 'Centre-ville' },
-]
 </script>
 
 <template>

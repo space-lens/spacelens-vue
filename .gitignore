@@ -39,6 +39,6 @@ __screenshots__/
 # Vite
 *.timestamp-*-*.mjs
 
-# Symlink local vers ../../astro-light-pipeline/data/tiles_bortle (transfert manuel, cf.
-# CLAUDE.md) — pas versionné, n'existe pas forcément sur toutes les machines.
-/public/tiles-bortle
+# Symlink local vers ../../astro-light-pipeline/data/exports/tiles_bortle.pmtiles (transfert
+# manuel, cf. CLAUDE.md) — pas versionné, n'existe pas forcément sur toutes les machines.
+/public/tiles_bortle.pmtiles

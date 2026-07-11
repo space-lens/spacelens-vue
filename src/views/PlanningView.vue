@@ -2,6 +2,7 @@
 import Navigation from '../components/Navigation.vue'
 import Omnibox from '../components/Omnibox.vue'
 import MapBackground from '../components/MapBackground.vue'
+import BortleLegend from '../components/BortleLegend.vue'
 import SmartPanel from '../components/panel/SmartPanel.vue'
 import SearchOverlay from '../components/SearchOverlay.vue'
 import LoadingIndicator from '../components/LoadingIndicator.vue'
@@ -49,6 +50,9 @@ import { appState, toggleTheme, locateUser, toggleBortleLayer } from '../composa
           <i class="fas fa-layer-group"></i>
         </button>
       </div>
+
+      <!-- Légende des couleurs du layer Bortle, affichée seulement quand il est actif -->
+      <BortleLegend v-if="appState.bortleLayerVisible" />
 
       <!-- LAYER 2 : SMART PANEL -->
       <SmartPanel />
