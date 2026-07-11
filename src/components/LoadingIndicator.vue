@@ -48,44 +48,34 @@ onUnmounted(() => {
          un sibling en dehors de <main>, pas un enfant de cet overlay). -->
     <div
       v-if="appState.isLoadingSpots"
-      class="absolute inset-0 z-40 flex items-center justify-center bg-white/40 dark:bg-slate-950/50 backdrop-blur-sm pointer-events-auto cursor-wait"
+      class="absolute inset-0 z-40 flex items-center justify-center bg-void/50 backdrop-blur-sm pointer-events-auto cursor-wait"
     >
       <div
-        class="bg-white/95 dark:bg-slate-800/95 border border-white dark:border-slate-700/50 rounded-2xl shadow-2xl px-6 py-5 flex flex-col items-center gap-3 max-w-[80%]"
+        class="bg-surface/95 border border-line rounded-2xl shadow-2xl px-6 py-5 flex flex-col items-center gap-3 max-w-[80%]"
       >
-        <div class="flex items-center gap-1.5 shrink-0">
-          <span class="w-3 h-3 rounded-full bg-indigo-500 loading-dot"></span>
-          <span class="w-3 h-3 rounded-full bg-indigo-500 loading-dot loading-dot-2"></span>
-          <span class="w-3 h-3 rounded-full bg-indigo-500 loading-dot loading-dot-3"></span>
-        </div>
-        <span class="text-sm font-medium text-slate-700 dark:text-slate-200 text-center">{{
-          MESSAGES[messageIndex]
-        }}</span>
+        <svg viewBox="0 0 40 40" class="w-9 h-9 loading-aperture" aria-hidden="true">
+          <circle cx="20" cy="20" r="17" fill="none" stroke="var(--color-dust-dim)" stroke-width="1" opacity="0.35" />
+          <circle cx="20" cy="20" r="11" fill="none" stroke="var(--color-signal)" stroke-width="1" opacity="0.5" />
+          <circle cx="20" cy="20" r="6" fill="none" stroke="var(--color-starlight)" stroke-width="1.2" opacity="0.9" />
+          <circle cx="20" cy="20" r="2" fill="var(--color-starlight)" />
+        </svg>
+        <span class="text-sm font-medium text-dust text-center">{{ MESSAGES[messageIndex] }}</span>
       </div>
     </div>
   </Transition>
 </template>
 
 <style scoped>
-.loading-dot {
-  animation: loading-bounce 1s ease-in-out infinite;
+.loading-aperture {
+  animation: loading-breathe 1.6s ease-in-out infinite;
 }
-.loading-dot-2 {
-  animation-delay: 0.15s;
-}
-.loading-dot-3 {
-  animation-delay: 0.3s;
-}
-@keyframes loading-bounce {
+@keyframes loading-breathe {
   0%,
-  80%,
   100% {
-    transform: scale(0.6);
-    opacity: 0.5;
+    transform: scale(0.92);
   }
-  40% {
-    transform: scale(1);
-    opacity: 1;
+  50% {
+    transform: scale(1.08);
   }
 }
 </style>

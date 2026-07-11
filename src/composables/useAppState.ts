@@ -1,4 +1,4 @@
-import { reactive, watchEffect } from 'vue'
+import { reactive } from 'vue'
 import type { Coordinates, MapPin } from '@/types/spot'
 import type { PanelState, HourlyWeather, TonightTarget, SelectedSpotDetail } from '@/types/panel'
 import type { WeatherResponse, WeatherDayEntry } from '@/types/weather'
@@ -57,7 +57,6 @@ export type ObjectSuggestionsState =
   | { status: 'error'; slug: string; displayName: string; message: string }
 
 export const appState = reactive({
-  isDarkMode: false,
   isSearchOverlayVisible: false,
   panelState: 'closed' as PanelState,
   userPosition: null as Coordinates | null,
@@ -94,10 +93,6 @@ export const appState = reactive({
 
 export function toggleBortleLayer() {
   appState.bortleLayerVisible = !appState.bortleLayerVisible
-}
-
-export function toggleTheme() {
-  appState.isDarkMode = !appState.isDarkMode
 }
 
 export function openSmartPanel() {
@@ -493,20 +488,4 @@ function toTonightTarget(item: TonightTargetApiItem): TonightTarget {
 
 export function formatCoordinates(latitude: number, longitude: number): string {
   return `${latitude.toFixed(3)}°, ${longitude.toFixed(3)}°`
-}
-
-// Watch for dark mode changes and apply to HTML tag
-if (typeof window !== 'undefined') {
-  // Initialize from document if already set (e.g. by index.html)
-  if (document.documentElement.classList.contains('dark')) {
-    appState.isDarkMode = true
-  }
-
-  watchEffect(() => {
-    if (appState.isDarkMode) {
-      document.documentElement.classList.add('dark')
-    } else {
-      document.documentElement.classList.remove('dark')
-    }
-  })
 }

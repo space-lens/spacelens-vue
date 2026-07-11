@@ -19,7 +19,7 @@ const selectedHour = computed(
 <template>
   <div
     id="smart-panel"
-    class="smart-panel glass-card absolute z-30 flex flex-col overflow-hidden border border-white/50 dark:border-slate-700/50"
+    class="smart-panel glass-card absolute z-30 flex flex-col overflow-hidden border border-line"
     :class="panelClasses"
   >
     <PanelHeader
@@ -41,14 +41,13 @@ const selectedHour = computed(
       <!-- SECTION 1 : Évolution de la nuit (créneaux réels du fournisseur météo, pas de l'horaire complet) -->
       <div
         v-if="appState.selectedSpot && appState.selectedSpot.hourly.length > 0"
-        class="p-5 border-b border-slate-200/50 dark:border-slate-700/50"
+        class="p-5 border-b border-line"
       >
         <div class="flex justify-between items-center mb-4">
-          <h3 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+          <h3 class="font-mono text-xs font-medium text-dust uppercase tracking-wider">
             Évolution de la nuit
           </h3>
-          <span
-            class="text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-500 px-2 py-0.5 rounded"
+          <span class="font-mono text-[10px] bg-surface-2 text-dust px-2 py-0.5 rounded"
             >Cliquez pour le détail</span
           >
         </div>
@@ -60,16 +59,11 @@ const selectedHour = computed(
       </div>
 
       <!-- SECTION 2 : Atmosphère au créneau sélectionné -->
-      <div
-        v-if="selectedHour"
-        class="p-5 border-b border-slate-200/50 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-900/20"
-      >
+      <div v-if="selectedHour" class="p-5 border-b border-line bg-void/40">
         <div class="flex justify-between items-center mb-4">
-          <h3 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+          <h3 class="font-mono text-xs font-medium text-dust uppercase tracking-wider">
             Atmosphère à
-            <span class="text-indigo-600 dark:text-indigo-400 font-extrabold">{{
-              selectedHour.time
-            }}</span>
+            <span class="text-starlight font-semibold">{{ selectedHour.time }}</span>
           </h3>
         </div>
         <AtmosphereGrid :hour="selectedHour" />
@@ -77,9 +71,7 @@ const selectedHour = computed(
 
       <!-- SECTION 3 : Cibles célestes recommandées ici -->
       <div v-if="appState.selectedSpot && appState.selectedSpot.targets.length > 0" class="p-5">
-        <h3
-          class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-4"
-        >
+        <h3 class="font-mono text-xs font-medium text-dust uppercase tracking-wider mb-4">
           Cibles recommandées ici
         </h3>
         <div class="space-y-3">

@@ -24,11 +24,11 @@ function describe(
   thresholds: Threshold[],
 ): { label: string; colorClass: string } {
   if (value === null) {
-    return { label: '—', colorClass: 'text-slate-500' }
+    return { label: '—', colorClass: 'text-dust-dim' }
   }
   const match = thresholds.find(([max]) => value <= max) ?? thresholds.at(-1)
   if (!match) {
-    return { label: '—', colorClass: 'text-slate-500' }
+    return { label: '—', colorClass: 'text-dust-dim' }
   }
   const [, label, colorClass] = match
   return { label, colorClass }
@@ -100,13 +100,13 @@ const metrics = computed<Metric[]>(() => {
       class="glass-card p-3 rounded-xl flex items-center gap-3"
     >
       <div
-        class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 flex items-center justify-center shrink-0"
+        class="w-8 h-8 rounded-full bg-surface-2 border border-line flex items-center justify-center shrink-0"
       >
-        <i class="fas text-slate-600 dark:text-slate-300" :class="metric.icon"></i>
+        <i class="fas text-dust" :class="metric.icon"></i>
       </div>
       <div class="min-w-0">
-        <p class="text-[10px] text-slate-500 font-medium leading-tight">{{ metric.label }}</p>
-        <p class="text-sm font-bold text-slate-900 dark:text-white leading-tight">
+        <p class="text-[10px] text-dust font-medium leading-tight">{{ metric.label }}</p>
+        <p class="font-mono text-sm font-semibold text-ink leading-tight">
           {{ metric.value }}
           <span class="text-[10px] font-normal block" :class="metric.descriptionClass">{{
             metric.description

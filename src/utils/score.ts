@@ -8,9 +8,9 @@ export function scoreTier(score: number): ScoreTier {
 }
 
 const TIER_BG_CLASSES: Record<ScoreTier, string> = {
-  good: 'bg-green-500',
-  medium: 'bg-orange-500',
-  poor: 'bg-red-500',
+  good: 'bg-good',
+  medium: 'bg-medium',
+  poor: 'bg-poor',
 }
 
 export function scoreBgClass(score: number): string {
@@ -18,9 +18,9 @@ export function scoreBgClass(score: number): string {
 }
 
 const TIER_BORDER_CLASSES: Record<ScoreTier, string> = {
-  good: 'border-emerald-500',
-  medium: 'border-orange-500',
-  poor: 'border-red-500',
+  good: 'border-good',
+  medium: 'border-medium',
+  poor: 'border-poor',
 }
 
 export function scoreBorderClass(score: number): string {
@@ -28,9 +28,9 @@ export function scoreBorderClass(score: number): string {
 }
 
 const TIER_TEXT_CLASSES: Record<ScoreTier, string> = {
-  good: 'text-emerald-600 dark:text-emerald-400',
-  medium: 'text-orange-600 dark:text-orange-400',
-  poor: 'text-red-600 dark:text-red-400',
+  good: 'text-good',
+  medium: 'text-medium',
+  poor: 'text-poor',
 }
 
 export function scoreTextClass(score: number): string {
@@ -38,9 +38,9 @@ export function scoreTextClass(score: number): string {
 }
 
 const TIER_BG_TINT_CLASSES: Record<ScoreTier, string> = {
-  good: 'bg-emerald-50 dark:bg-emerald-500/10',
-  medium: 'bg-orange-50 dark:bg-orange-500/10',
-  poor: 'bg-red-50 dark:bg-red-500/10',
+  good: 'bg-good/10',
+  medium: 'bg-medium/10',
+  poor: 'bg-poor/10',
 }
 
 export function scoreBgTintClass(score: number): string {

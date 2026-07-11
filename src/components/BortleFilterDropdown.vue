@@ -8,29 +8,27 @@ const emit = defineEmits<{
 
 <template>
   <div
-    class="absolute top-full left-0 mt-2 z-30 bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl border border-white dark:border-slate-700/50 rounded-2xl shadow-xl p-2 w-56 max-h-80 overflow-y-auto no-scrollbar"
+    class="absolute top-full left-0 mt-2 z-30 bg-surface/95 backdrop-blur-xl border border-line rounded-2xl shadow-xl p-2 w-56 max-h-80 overflow-y-auto no-scrollbar"
   >
-    <p
-      class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-2 pt-1 pb-2"
-    >
+    <p class="font-mono text-[10px] font-medium text-dust uppercase tracking-wider px-2 pt-1 pb-2">
       Bortle maximum accepté
     </p>
     <button
-      class="w-full text-left px-3 py-2 rounded-xl text-sm text-slate-700 dark:text-slate-200 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 transition-colors flex items-center gap-2"
+      class="w-full text-left px-3 py-2 rounded-xl text-sm text-ink hover:bg-surface-2 transition-colors flex items-center gap-2"
       @click="emit('select', null)"
     >
-      <i class="fas fa-infinity text-indigo-400 text-xs w-3 text-center"></i>
+      <i class="fas fa-infinity text-starlight text-xs w-3 text-center"></i>
       Tous les Bortle
     </button>
     <button
       v-for="level in BORTLE_LEVELS"
       :key="level.value"
-      class="w-full text-left px-3 py-2 rounded-xl text-sm text-slate-700 dark:text-slate-200 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 transition-colors flex items-center gap-2"
+      class="w-full text-left px-3 py-2 rounded-xl text-sm text-ink hover:bg-surface-2 transition-colors flex items-center gap-2"
       @click="emit('select', level.value)"
     >
-      <i class="fas fa-lightbulb text-indigo-400 text-xs w-3 text-center"></i>
+      <i class="fas fa-lightbulb text-starlight text-xs w-3 text-center"></i>
       Bortle ≤ {{ level.value }}
-      <span class="text-[10px] text-slate-400 dark:text-slate-500 ml-auto">{{ level.label }}</span>
+      <span class="font-mono text-[10px] text-dust-dim ml-auto">{{ level.label }}</span>
     </button>
   </div>
 </template>

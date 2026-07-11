@@ -6,40 +6,40 @@ export interface CelestialIconStyle {
 }
 
 const AMBER: Pick<CelestialIconStyle, 'bgClass' | 'textClass' | 'borderClass'> = {
-  bgClass: 'bg-amber-100 dark:bg-amber-900/30',
-  textClass: 'text-amber-500 dark:text-amber-400',
-  borderClass: 'border-amber-200 dark:border-amber-800',
+  bgClass: 'bg-amber-900/30',
+  textClass: 'text-amber-400',
+  borderClass: 'border-amber-800',
 }
 
 const PURPLE: Pick<CelestialIconStyle, 'bgClass' | 'textClass' | 'borderClass'> = {
-  bgClass: 'bg-purple-100 dark:bg-purple-900/30',
-  textClass: 'text-purple-500 dark:text-purple-400',
-  borderClass: 'border-purple-200 dark:border-purple-800',
+  bgClass: 'bg-purple-900/30',
+  textClass: 'text-purple-400',
+  borderClass: 'border-purple-800',
 }
 
 const INDIGO: Pick<CelestialIconStyle, 'bgClass' | 'textClass' | 'borderClass'> = {
-  bgClass: 'bg-indigo-100 dark:bg-indigo-900/30',
-  textClass: 'text-indigo-500 dark:text-indigo-400',
-  borderClass: 'border-indigo-200 dark:border-indigo-800',
+  bgClass: 'bg-indigo-900/30',
+  textClass: 'text-indigo-400',
+  borderClass: 'border-indigo-800',
 }
 
 const PINK: Pick<CelestialIconStyle, 'bgClass' | 'textClass' | 'borderClass'> = {
-  bgClass: 'bg-pink-100 dark:bg-pink-900/30',
-  textClass: 'text-pink-500 dark:text-pink-400',
-  borderClass: 'border-pink-200 dark:border-pink-800',
+  bgClass: 'bg-pink-900/30',
+  textClass: 'text-pink-400',
+  borderClass: 'border-pink-800',
 }
 
 const RED: Pick<CelestialIconStyle, 'bgClass' | 'textClass' | 'borderClass'> = {
-  bgClass: 'bg-red-100 dark:bg-red-900/30',
-  textClass: 'text-red-500 dark:text-red-400',
-  borderClass: 'border-red-200 dark:border-red-800',
+  bgClass: 'bg-red-900/30',
+  textClass: 'text-red-400',
+  borderClass: 'border-red-800',
 }
 
 const OTHER_ICON_STYLE: CelestialIconStyle = {
   icon: 'fa-certificate',
-  bgClass: 'bg-blue-100 dark:bg-blue-900/30',
-  textClass: 'text-blue-500 dark:text-blue-400',
-  borderClass: 'border-blue-200 dark:border-blue-800',
+  bgClass: 'bg-signal/15',
+  textClass: 'text-signal',
+  borderClass: 'border-signal/30',
 }
 
 // Icônes FontAwesome choisies pour évoquer visuellement chaque type d'objet (spirale pour une
@@ -48,27 +48,27 @@ const OTHER_ICON_STYLE: CelestialIconStyle = {
 const ICON_STYLES: Record<string, CelestialIconStyle> = {
   sun: {
     icon: 'fa-sun',
-    bgClass: 'bg-yellow-100 dark:bg-yellow-900/30',
-    textClass: 'text-yellow-500 dark:text-yellow-400',
-    borderClass: 'border-yellow-200 dark:border-yellow-800',
+    bgClass: 'bg-yellow-900/30',
+    textClass: 'text-yellow-400',
+    borderClass: 'border-yellow-800',
   },
   moon: {
     icon: 'fa-moon',
-    bgClass: 'bg-slate-100 dark:bg-slate-800',
-    textClass: 'text-slate-500 dark:text-slate-300',
-    borderClass: 'border-slate-200 dark:border-slate-700',
+    bgClass: 'bg-surface-2',
+    textClass: 'text-dust',
+    borderClass: 'border-line',
   },
   planet: {
     icon: 'fa-globe',
-    bgClass: 'bg-orange-100 dark:bg-orange-900/30',
-    textClass: 'text-orange-500 dark:text-orange-400',
-    borderClass: 'border-orange-200 dark:border-orange-800',
+    bgClass: 'bg-orange-900/30',
+    textClass: 'text-orange-400',
+    borderClass: 'border-orange-800',
   },
   dwarf_planet: {
     icon: 'fa-globe',
-    bgClass: 'bg-orange-100 dark:bg-orange-900/30',
-    textClass: 'text-orange-500 dark:text-orange-400',
-    borderClass: 'border-orange-200 dark:border-orange-800',
+    bgClass: 'bg-orange-900/30',
+    textClass: 'text-orange-400',
+    borderClass: 'border-orange-800',
   },
   star: { icon: 'fa-star', ...AMBER },
   double_star: { icon: 'fa-star-of-life', ...AMBER },

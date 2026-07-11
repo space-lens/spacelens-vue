@@ -9,13 +9,11 @@ import LoadingIndicator from '../components/LoadingIndicator.vue'
 import MapClickModal from '../components/MapClickModal.vue'
 import ReferenceLocationPrompt from '../components/ReferenceLocationPrompt.vue'
 import ObjectSuggestionsPanel from '../components/ObjectSuggestionsPanel.vue'
-import { appState, toggleTheme, locateUser, toggleBortleLayer } from '../composables/useAppState'
+import { appState, locateUser, toggleBortleLayer } from '../composables/useAppState'
 </script>
 
 <template>
-  <div
-    class="bg-slate-100 dark:bg-slate-900 text-slate-900 dark:text-white overflow-hidden w-full h-screen relative flex transition-colors duration-500"
-  >
+  <div class="bg-void text-ink overflow-hidden w-full h-screen relative flex">
     <Navigation />
 
     <main class="flex-1 relative overflow-hidden h-full">
@@ -30,7 +28,7 @@ import { appState, toggleTheme, locateUser, toggleBortleLayer } from '../composa
         <button
           @click="locateUser"
           :disabled="appState.isLocating"
-          class="w-10 h-10 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border border-white dark:border-slate-600 rounded-full flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white shadow-lg disabled:opacity-60"
+          class="w-10 h-10 bg-surface/90 backdrop-blur-md border border-line rounded-full flex items-center justify-center text-dust hover:text-ink shadow-lg disabled:opacity-60"
         >
           <i
             class="fas"
@@ -42,8 +40,8 @@ import { appState, toggleTheme, locateUser, toggleBortleLayer } from '../composa
           class="w-10 h-10 backdrop-blur-md border rounded-full flex items-center justify-center shadow-lg transition-colors"
           :class="
             appState.bortleLayerVisible
-              ? 'bg-indigo-500 border-indigo-500 text-white'
-              : 'bg-white/90 dark:bg-slate-800/90 border-white dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
+              ? 'bg-starlight border-starlight-dim text-void'
+              : 'bg-surface/90 border-line text-dust hover:text-ink'
           "
           title="Pollution lumineuse (Bortle)"
         >
@@ -74,13 +72,5 @@ import { appState, toggleTheme, locateUser, toggleBortleLayer } from '../composa
       <SearchOverlay />
     </main>
 
-    <!-- Toggle Theme Flottant -->
-    <button
-      @click="toggleTheme"
-      class="fixed bottom-20 md:bottom-4 right-4 w-12 h-12 rounded-full bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border border-slate-200 dark:border-slate-700 shadow-xl flex items-center justify-center text-slate-700 dark:text-yellow-400 z-50 hover:scale-110 transition-transform"
-    >
-      <i class="fas fa-moon dark:hidden"></i>
-      <i class="fas fa-sun hidden dark:block"></i>
-    </button>
   </div>
 </template>

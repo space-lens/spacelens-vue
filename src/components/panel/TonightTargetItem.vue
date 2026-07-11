@@ -26,7 +26,7 @@ const transitLabel = computed(() => {
 
 <template>
   <div
-    class="bg-white/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl p-3 flex gap-4 hover:border-indigo-400 dark:hover:border-indigo-500 transition-colors"
+    class="bg-surface/60 border border-line rounded-xl p-3 flex gap-4 hover:border-starlight-dim transition-colors"
   >
     <div
       class="w-12 h-12 rounded-lg flex items-center justify-center shrink-0 border"
@@ -37,10 +37,10 @@ const transitLabel = computed(() => {
     <div class="flex-1 min-w-0">
       <div class="flex justify-between items-start gap-2">
         <div class="min-w-0">
-          <h4 class="text-sm font-bold text-slate-900 dark:text-white truncate">
+          <h4 class="font-serif italic font-medium text-sm text-ink truncate">
             {{ target.displayName }}
           </h4>
-          <p class="text-[10px] text-slate-500 mt-0.5">
+          <p class="text-[10px] text-dust mt-0.5">
             {{ target.objectTypeLabel }}
             <span v-if="target.apparentMagnitude !== null">
               &bull; Mag {{ target.apparentMagnitude }}</span
@@ -49,26 +49,21 @@ const transitLabel = computed(() => {
         </div>
         <span
           class="w-2 h-2 rounded-full mt-1 shrink-0"
-          :class="
-            isWellPlaced ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]' : 'bg-orange-400'
-          "
+          :class="isWellPlaced ? 'bg-good shadow-[0_0_8px_rgba(52,168,118,0.8)]' : 'bg-medium'"
         ></span>
       </div>
       <div
-        class="mt-2 flex gap-3 text-[10px] font-medium text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-900/50 p-1.5 rounded flex-wrap"
+        class="mt-2 flex gap-3 text-[10px] font-mono font-medium text-dust bg-void/50 p-1.5 rounded flex-wrap"
       >
         <span v-if="transitLabel"
-          ><i class="fas fa-arrow-up text-indigo-400 mr-1"></i> Transit {{ transitLabel }}</span
+          ><i class="fas fa-arrow-up text-signal mr-1"></i> Transit {{ transitLabel }}</span
         >
         <span
-          ><i class="fas fa-angle-up text-indigo-400 mr-1"></i> Alt
+          ><i class="fas fa-angle-up text-signal mr-1"></i> Alt
           {{ Math.round(target.maxAltitudeDeg) }}°</span
         >
       </div>
-      <p
-        v-if="!isWellPlaced"
-        class="mt-1.5 text-[10px] font-medium text-orange-600 dark:text-orange-400"
-      >
+      <p v-if="!isWellPlaced" class="mt-1.5 text-[10px] font-medium text-medium">
         Bas sur l'horizon, observation moins favorable.
       </p>
     </div>

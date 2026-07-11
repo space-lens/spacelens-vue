@@ -52,8 +52,8 @@ const userLocationIcon = L.divIcon({
   className: 'user-location-marker',
   html: `
     <div class="relative flex items-center justify-center w-5 h-5">
-      <div class="absolute w-5 h-5 bg-indigo-500/30 rounded-full user-location-pulse"></div>
-      <div class="w-3.5 h-3.5 bg-indigo-500 rounded-full border-2 border-white shadow-md"></div>
+      <div class="absolute w-5 h-5 bg-starlight/30 rounded-full user-location-pulse"></div>
+      <div class="w-3.5 h-3.5 bg-starlight rounded-full border-2 border-ink shadow-md"></div>
     </div>
   `,
   iconSize: [20, 20],
@@ -67,16 +67,16 @@ function scoreLabel(score: number | null): string {
 // Pin principal (lieu recherché) : cercle avec le score et un label sous le pin, même design
 // que l'ancien marker Calern codé en dur.
 function createPrimaryIcon(score: number | null, name?: string): L.DivIcon {
-  const bgClass = score === null ? 'bg-slate-400' : scoreBgClass(score)
+  const bgClass = score === null ? 'bg-dust-dim' : scoreBgClass(score)
   const label = name
-    ? `<span class="mt-1 text-xs font-bold bg-white/90 dark:bg-slate-900/80 px-2 py-0.5 rounded backdrop-blur-md shadow-sm text-slate-900 dark:text-white">${escapeHtml(name)}</span>`
+    ? `<span class="mt-1 text-xs font-serif italic font-medium bg-surface/90 px-2 py-0.5 rounded backdrop-blur-md shadow-sm text-ink">${escapeHtml(name)}</span>`
     : ''
 
   return L.divIcon({
     className: 'custom-marker',
     html: `
       <div class="flex flex-col items-center cursor-pointer group">
-        <div class="w-10 h-10 ${bgClass} rounded-full border-[3px] border-white dark:border-slate-900 shadow-lg pin-pulse flex items-center justify-center z-10">
+        <div class="w-10 h-10 ${bgClass} rounded-full border-[3px] border-void shadow-lg pin-pulse flex items-center justify-center z-10">
           <span class="font-bold text-white text-sm">${scoreLabel(score)}</span>
         </div>
         ${label}
@@ -93,7 +93,7 @@ function createRecommendationIcon(score: number): L.DivIcon {
   return L.divIcon({
     className: 'custom-marker',
     html: `
-      <div class="w-8 h-8 ${scoreBgClass(score)} rounded-full border-2 border-white dark:border-slate-900 shadow-md flex items-center justify-center cursor-pointer">
+      <div class="w-8 h-8 ${scoreBgClass(score)} rounded-full border-2 border-void shadow-md flex items-center justify-center cursor-pointer">
         <span class="font-bold text-white text-xs">${score}</span>
       </div>
     `,

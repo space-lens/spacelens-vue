@@ -12,17 +12,17 @@ const emit = defineEmits<{
 
 <template>
   <div
-    class="bg-white/60 dark:bg-slate-800/60 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700/50 rounded-xl p-3 flex items-center gap-4 cursor-pointer shadow-sm"
+    class="bg-surface/60 hover:bg-surface-2 border border-line rounded-xl p-3 flex items-center gap-4 cursor-pointer shadow-sm"
     @click="emit('select', props.item)"
   >
     <div
-      class="w-10 h-10 rounded-lg bg-pink-100 dark:bg-pink-900/30 text-pink-500 dark:text-pink-400 flex items-center justify-center shrink-0 border border-pink-200 dark:border-pink-500/20"
+      class="w-10 h-10 rounded-lg bg-starlight/10 text-starlight flex items-center justify-center shrink-0 border border-starlight/20"
     >
       <i class="fas fa-meteor"></i>
     </div>
     <div class="flex-1">
-      <p class="font-bold text-slate-900 dark:text-slate-200">{{ item.display_name }}</p>
-      <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+      <p class="font-serif italic font-medium text-ink">{{ item.display_name }}</p>
+      <p class="font-mono text-xs text-dust mt-0.5">
         <span v-if="item.required_bortle !== null"
           >Visible jusqu'à Bortle {{ item.required_bortle }}</span
         >
@@ -31,7 +31,7 @@ const emit = defineEmits<{
     </div>
     <span
       v-if="item.visible_tonight"
-      class="text-[10px] bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-700/50 px-2 py-0.5 rounded shrink-0"
+      class="font-mono text-[10px] bg-starlight/10 text-starlight border border-starlight/30 px-2 py-0.5 rounded shrink-0"
     >
       Idéal ce soir
     </span>
