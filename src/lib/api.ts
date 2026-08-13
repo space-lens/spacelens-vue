@@ -123,7 +123,10 @@ export async function getWeather(
   options: WeatherOptions = {},
 ): Promise<WeatherResponse> {
   const params = new URLSearchParams({ latitude: String(latitude), longitude: String(longitude) })
-  if (options.date) params.set('start_date', options.date)
+
+  if (options.date) {
+    params.set('start_date', options.date)
+  }
 
   const response = await fetch(`${API_BASE_URL}/v1/weather?${params}`, { signal: options.signal })
 

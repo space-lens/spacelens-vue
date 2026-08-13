@@ -25,6 +25,7 @@ export function nextPlanningDays(count: number = PLANNING_DAYS_COUNT): PlanningD
   for (let i = 0; i < count; i++) {
     const day = addLocalDays(now, i)
     let label: string
+
     if (i === 0) {
       label = "Aujourd'hui"
     } else if (i === 1) {

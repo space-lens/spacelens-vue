@@ -13,7 +13,7 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <div class="flex overflow-x-auto no-scrollbar gap-2 pb-2">
+  <div class="flex overflow-x-auto no-scrollbar gap-2 p-2">
     <div
       v-for="(hour, index) in hours"
       :key="hour.time"
@@ -35,9 +35,7 @@ const emit = defineEmits<{
       >
         {{ hour.time }}<sup v-if="hour.isNextDay">+1</sup>
       </span>
-      <div
-        class="w-full h-12 bg-void/50 rounded mt-2 relative flex items-end overflow-hidden"
-      >
+      <div class="w-full h-12 bg-void/50 rounded mt-2 relative flex items-end overflow-hidden">
         <div
           class="w-full rounded-sm transition-all duration-500"
           :class="scoreBgClass(hour.score)"

@@ -49,8 +49,11 @@ import { appState, locateUser, toggleBortleLayer } from '../composables/useAppSt
         </button>
       </div>
 
-      <!-- Légende des couleurs du layer Bortle, affichée seulement quand il est actif -->
-      <BortleLegend v-if="appState.bortleLayerVisible" />
+      <!-- Légende des couleurs du layer Bortle : affichée seulement quand il est actif, et
+           masquée dès qu'un lieu est sélectionné (le SmartPanel — z-index supérieur — la
+           recouvre partiellement en desktop comme en mobile ; un seul niveau d'information à la
+           fois, cf. principe de divulgation progressive de l'identité). -->
+      <BortleLegend v-if="appState.bortleLayerVisible && !appState.selectedSpot" />
 
       <!-- LAYER 2 : SMART PANEL -->
       <SmartPanel />

@@ -44,6 +44,7 @@ function handleBortleSelect(value: number | null) {
 useClickOutside(datePickerContainer, () => {
   isDatePickerOpen.value = false
 })
+
 useClickOutside(bortlePickerContainer, () => {
   isBortlePickerOpen.value = false
 })

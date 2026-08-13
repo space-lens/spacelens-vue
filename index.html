@@ -1,13 +1,51 @@
 <!doctype html>
-<html lang="">
-    <head>
-        <meta charset="UTF-8" />
-        <link rel="icon" href="/favicon.ico" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Vite App</title>
-    </head>
-    <body>
-        <div id="app"></div>
-        <script type="module" src="/src/main.ts"></script>
-    </body>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+
+    <title>SpaceLens | Planificateur et Météo pour l'Astronomie et l'Astrophotographie</title>
+    <meta
+      name="description"
+      content="Découvrez SpaceLens, l'application ultime pour les astronomes amateurs et les clubs. Carte de pollution lumineuse (Bortle), météo astro en temps réel et planification de soirées d'observation."
+    />
+    <meta
+      name="keywords"
+      content="astronomie, astrophotographie, météo astro, carte bortle, pollution lumineuse, planificateur observation, club astronomie, éphémérides"
+    />
+    <meta name="author" content="SpaceLens" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://www.spacelens.fr" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://www.spacelens.fr" />
+    <meta property="og:title" content="SpaceLens - L'avenir de l'observation astronomique" />
+    <meta
+      property="og:description"
+      content="Croisez la météo, la pollution lumineuse et les éphémérides pour organiser vos soirées d'astronomie. Rejoignez la liste d'attente."
+    />
+    <meta
+      property="og:image"
+      content="https://images.unsplash.com/photo-1516331165146-2495d43fbdf9?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
+    />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "SpaceLens",
+        "url": "https://www.spacelens.fr",
+        "applicationCategory": "LifestyleApplication",
+        "genre": "Astronomy",
+        "about": "Application de planification de soirées d'astronomie, météo spatiale et outils pour les clubs d'astronomie.",
+        "browserRequirements": "Requires HTML5 support",
+        "operatingSystem": "All"
+      }
+    </script>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
 </html>

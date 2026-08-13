@@ -18,3 +18,22 @@ export const BORTLE_LEVELS: BortleLevel[] = [
   { value: 8, label: 'Urbain dense', color: 'rgba(255, 0, 0, 0.9)' },
   { value: 9, label: 'Centre-ville', color: 'rgba(255, 255, 255, 1)' },
 ]
+
+// `color` est la teinte translucide peinte sur le fond de carte (identique au pipeline, cf.
+// commentaire ci-dessus) — la classe 1 y est quasi transparente pour laisser voir le fond
+// satellite en dessous, ce qui est correct sur la carte mais rend son swatch invisible dans une
+// légende posée sur un panneau opaque. `swatchColor` compose la même teinte sur un fond de
+// référence sombre (celui des cartes de l'UI) pour un aperçu toujours visible, sans toucher à la
+// donnée `color` elle-même.
+const SWATCH_BACKDROP: [number, number, number] = [21, 20, 31] // --color-surface
+
+export function swatchColor(level: BortleLevel): string {
+  const match = level.color.match(/rgba?\(([^)]+)\)/)
+  if (!match) return level.color
+
+  const [r, g, b, a] = match[1].split(',').map((part) => parseFloat(part))
+  const alpha = a ?? 1
+  const blend = (channel: number, backdrop: number) => Math.round(channel * alpha + backdrop * (1 - alpha))
+
+  return `rgb(${blend(r, SWATCH_BACKDROP[0])}, ${blend(g, SWATCH_BACKDROP[1])}, ${blend(b, SWATCH_BACKDROP[2])})`
+}

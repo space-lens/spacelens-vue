@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { BORTLE_LEVELS } from '@/utils/bortle'
+import { BORTLE_LEVELS, swatchColor } from '@/utils/bortle'
 </script>
 
 <template>
@@ -17,7 +17,7 @@ import { BORTLE_LEVELS } from '@/utils/bortle'
       >
         <span
           class="w-3.5 h-3.5 rounded-sm border border-line shrink-0"
-          :style="{ backgroundColor: level.color }"
+          :style="{ backgroundColor: swatchColor(level) }"
         ></span>
         <span class="font-mono font-medium w-4">{{ level.value }}</span>
         <span class="text-dust truncate">{{ level.label }}</span>

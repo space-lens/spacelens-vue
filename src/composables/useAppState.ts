@@ -13,10 +13,6 @@ import {
   getSpatioTemporalSuggestions,
 } from '@/lib/api'
 
-// Une soirée d'observation déborde sur le lendemain matin : on va chercher les créneaux nocturnes
-// du lendemain jusqu'à cette heure plutôt que de couper la nuit à minuit.
-const NEXT_DAY_HOURLY_CUTOFF = '08:00'
-
 const TONIGHT_TARGETS_LIMIT = 5
 
 // État de la modale de validation d'un point cliqué sur la carte (Parcours 1, clic direct) :
@@ -216,7 +212,11 @@ export async function chooseReferenceLocationForPendingObject(latitude: number, 
   if (!pending) return
 
   appState.pendingCelestialObject = null
-  appState.objectSuggestions = { status: 'loading', slug: pending.slug, displayName: pending.displayName }
+  appState.objectSuggestions = {
+    status: 'loading',
+    slug: pending.slug,
+    displayName: pending.displayName,
+  }
 
   try {
     const result = await getSpatioTemporalSuggestions(pending.slug, latitude, longitude)
@@ -250,7 +250,10 @@ export function requestGeolocationForPendingObject() {
   navigator.geolocation.getCurrentPosition(
     (position) => {
       appState.userPosition = { lat: position.coords.latitude, lng: position.coords.longitude }
-      void chooseReferenceLocationForPendingObject(position.coords.latitude, position.coords.longitude)
+      void chooseReferenceLocationForPendingObject(
+        position.coords.latitude,
+        position.coords.longitude,
+      )
     },
     (error) => {
       appState.locationError = error.message
@@ -381,9 +384,10 @@ export async function selectRecommendedSpot(spot: MapPin) {
 }
 
 /**
- * Météo (aujourd'hui + lendemain matin jusqu'à 8h) et cibles célestes du soir pour un point précis
- * — factorisé entre selectLocation (lieu principal) et selectRecommendedSpot (pastille), seule la
- * source du bortle diffère entre les deux appelants.
+ * Météo (fenêtre d'observation coucher du soleil → lever du lendemain, déjà bornée côté back,
+ * voir CLAUDE.md backend) et cibles célestes du soir pour un point précis — factorisé entre
+ * selectLocation (lieu principal) et selectRecommendedSpot (pastille), seule la source du bortle
+ * diffère entre les deux appelants.
  */
 async function loadSpotDetail(
   latitude: number,
@@ -393,51 +397,36 @@ async function loadSpotDetail(
 ): Promise<Omit<SelectedSpotDetail, 'bortle'>> {
   const date = appState.selectedDate ?? undefined
 
-  const [todayWeather, targets] = await Promise.all([
+  const [weather, targets] = await Promise.all([
     getWeather(latitude, longitude, { date, signal }),
     getTonightCelestialObjects(latitude, longitude, { date, limit: TONIGHT_TARGETS_LIMIT, signal }),
   ])
-
-  // Le lendemain matin (jusqu'à 8h) fait partie de la même soirée d'observation — deuxième appel
-  // une fois qu'on connaît le jour local réellement résolu par le premier (la clé du jour dans la
-  // réponse), déjà synchronisé en base par le même appel (voir CLAUDE.md backend).
-  const todayDateKey = Object.keys(todayWeather)[0]
-  const tomorrowWeather = todayDateKey
-    ? await getWeather(latitude, longitude, { date: addDays(todayDateKey, 1), signal })
-    : {}
-
-  const hourly = buildNightlyHourly(todayWeather, tomorrowWeather)
 
   return {
     name: name ?? formatCoordinates(latitude, longitude),
     latitude,
     longitude,
-    hourly,
+    hourly: buildNightlyHourly(weather),
     targets: targets.map(toTonightTarget),
   }
 }
 
-// Ne garde que les créneaux nocturnes (is_night, calculé côté back à partir du lever/coucher du
-// soleil réel) : les créneaux de jour ont toujours un score à 0 (non pertinents pour une
-// observation), les afficher ne ferait qu'encombrer la timeline de barres vides.
-function buildNightlyHourly(today: WeatherResponse, tomorrow: WeatherResponse): HourlyWeather[] {
-  const todayHours = extractNightHours(Object.values(today)[0], null, false)
-  const tomorrowHours = extractNightHours(Object.values(tomorrow)[0], NEXT_DAY_HOURLY_CUTOFF, true)
+// La réponse couvre déjà exactement la fenêtre d'observation (voir CLAUDE.md backend) : au plus
+// deux clés de jour, triées chronologiquement — la première est la soirée demandée, les
+// éventuelles suivantes le matin du lendemain.
+function buildNightlyHourly(weather: WeatherResponse): HourlyWeather[] {
+  const dayKeys = Object.keys(weather).sort()
+  const [eveningKey] = dayKeys
 
-  return [...todayHours, ...tomorrowHours]
+  return dayKeys.flatMap((dayKey) => extractHours(weather[dayKey], dayKey !== eveningKey))
 }
 
-function extractNightHours(
-  day: WeatherDayEntry | undefined,
-  maxTime: string | null,
-  isNextDay: boolean,
-): HourlyWeather[] {
+function extractHours(day: WeatherDayEntry | undefined, isNextDay: boolean): HourlyWeather[] {
   if (!day?.hours) {
     return []
   }
 
   return Object.entries(day.hours)
-    .filter(([time, hour]) => hour.is_night && (maxTime === null || time <= maxTime))
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([time, hour]) => ({
       time,
@@ -449,12 +438,6 @@ function extractNightHours(
       rainProbabilityPercent: hour.rain_probability,
       isNextDay,
     }))
-}
-
-function addDays(dateStr: string, days: number): string {
-  const date = new Date(`${dateStr}T00:00:00Z`)
-  date.setUTCDate(date.getUTCDate() + days)
-  return date.toISOString().slice(0, 10)
 }
 
 // "Meilleur score par défaut, première occurrence en cas d'égalité" : ">" strict ne remplace
