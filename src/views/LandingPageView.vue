@@ -1,93 +1,134 @@
+<script setup lang="ts">
+const waitlistMailto =
+  "mailto:contact@spacelens.fr?subject=Liste%20d'attente%20SpaceLens&body=Bonjour%2C%0A%0AJe%20souhaite%20rejoindre%20la%20liste%20d'attente%20de%20SpaceLens.%0A%0AMon%20email%C2%A0%3A%20"
+</script>
+
 <template>
-  <div
-    class="bg-landing min-h-screen flex flex-col relative overflow-x-hidden selection:bg-indigo-500 selection:text-white"
-  >
-    <!-- Overlay sombre global -->
-    <div class="absolute inset-0 bg-slate-900/70 z-0"></div>
+  <div class="bg-landing min-h-screen flex flex-col relative overflow-x-hidden selection:bg-starlight selection:text-void">
+    <div class="absolute inset-0 bg-void/70 z-0"></div>
 
     <!-- HEADER -->
     <header
-      class="relative z-10 w-full py-6 px-4 md:px-8 max-w-7xl mx-auto flex justify-between items-center"
+      class="relative z-10 w-full py-6 px-4 md:px-8 max-w-6xl mx-auto flex justify-between items-center"
     >
       <div class="flex items-center gap-3">
-        <span class="text-2xl font-bold tracking-tight text-white glow-text">SpaceLens</span>
-      </div>
-      <div>
-        <span
-          class="landing-panel px-4 py-1.5 rounded-full text-xs md:text-sm font-medium text-indigo-300 border-indigo-500/30"
+        <div
+          class="w-9 h-9 bg-void border border-line rounded-xl flex items-center justify-center shadow-lg"
         >
-          Lancement Prévu en 2026
-        </span>
+          <svg viewBox="0 0 40 40" class="w-6 h-6" aria-hidden="true">
+            <circle
+              cx="20"
+              cy="20"
+              r="17"
+              fill="none"
+              stroke="var(--color-dust-dim)"
+              stroke-width="1"
+              opacity="0.4"
+            />
+            <circle
+              cx="20"
+              cy="20"
+              r="11"
+              fill="none"
+              stroke="var(--color-signal)"
+              stroke-width="1"
+              opacity="0.55"
+            />
+            <circle
+              cx="20"
+              cy="20"
+              r="6"
+              fill="none"
+              stroke="var(--color-starlight)"
+              stroke-width="1.2"
+              opacity="0.9"
+            />
+            <circle cx="20" cy="20" r="2" fill="var(--color-starlight)" />
+          </svg>
+        </div>
+        <span class="text-xl font-serif font-semibold tracking-tight text-ink">SpaceLens</span>
       </div>
+      <span
+        class="landing-panel px-4 py-1.5 rounded-full text-xs md:text-sm font-medium text-starlight border border-starlight/30"
+      >
+        Lancement prévu en 2026
+      </span>
     </header>
 
-    <!-- MAIN CONTENT (Optimisé SEO) -->
+    <!-- MAIN -->
     <main
-      class="relative z-10 flex-1 flex flex-col items-center max-w-7xl mx-auto px-4 md:px-8 w-full pt-12 md:pt-20 pb-20"
+      class="relative z-10 flex-1 flex flex-col items-center max-w-6xl mx-auto px-4 md:px-8 w-full pt-12 md:pt-16 pb-24 gap-24 md:gap-32"
     >
-      <!-- HERO SECTION -->
-      <section class="text-center max-w-4xl mx-auto mb-20">
+      <!-- HERO -->
+      <section class="text-center max-w-3xl mx-auto">
+        <p class="font-mono text-xs uppercase tracking-widest text-signal mb-5">
+          Astronomie amateur & clubs
+        </p>
         <h1
-          class="text-4xl md:text-6xl lg:text-7xl font-extrabold text-white tracking-tight leading-tight mb-6"
+          class="text-4xl md:text-6xl font-extrabold text-ink tracking-tight leading-tight mb-6"
         >
-          La planification astronomique, <br class="hidden md:block" />
-          <span
-            class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-emerald-400 glow-text"
-            >totalement réinventée.</span
-          >
+          Ne ratez plus jamais
+          <span class="font-serif italic text-starlight glow-text">une nuit claire.</span>
         </h1>
+        <p class="text-lg md:text-xl text-dust font-medium mb-10 max-w-2xl mx-auto leading-relaxed">
+          SpaceLens croise la météo, la pollution lumineuse (échelle de Bortle) et les éphémérides
+          pour vous dire précisément <strong class="text-ink">où</strong> et
+          <strong class="text-ink">quand</strong> observer.
+        </p>
 
-        <h2
-          class="text-lg md:text-xl text-slate-300 font-medium mb-10 max-w-2xl mx-auto leading-relaxed"
+        <form
+          class="flex flex-col sm:flex-row items-center justify-center gap-3 max-w-md mx-auto"
+          :action="waitlistMailto"
+          method="get"
         >
-          Le premier outil web pensé par des astronomes pour les amateurs et les clubs. Croisez la
-          météo, la pollution lumineuse (Bortle) et les éphémérides pour vos soirées
-          d'astrophotographie.
-        </h2>
+          <a
+            :href="waitlistMailto"
+            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-starlight hover:bg-starlight-dim text-void font-semibold py-3 px-6 rounded-xl shadow-[0_4px_14px_0_rgba(232,182,91,0.25)] transition-colors"
+          >
+            <i class="fas fa-envelope" aria-hidden="true"></i>
+            Rejoindre la liste d'attente
+          </a>
+          <a
+            href="#pourquoi"
+            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 landing-panel border border-line hover:border-dust text-dust hover:text-ink font-semibold py-3 px-6 rounded-xl transition-colors"
+          >
+            Découvrir le projet
+          </a>
+        </form>
+        <p class="text-xs text-dust-dim mt-4">
+          Aucun spam : un email quand SpaceLens ouvre ses portes, rien d'autre.
+        </p>
       </section>
 
-      <!-- SNEAK PEEK VISUAL (Simulation UI) -->
-      <section
-        class="w-full max-w-5xl mx-auto mb-32 float-animation hidden md:block"
-        aria-hidden="true"
-      >
-        <div
-          class="landing-panel rounded-3xl p-2 shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-slate-700/50 relative overflow-hidden"
-        >
-          <!-- Header macOS style -->
-          <div class="flex items-center gap-2 px-4 pt-2 pb-3 border-b border-slate-700/50">
-            <div class="w-3 h-3 rounded-full bg-slate-600"></div>
-            <div class="w-3 h-3 rounded-full bg-slate-600"></div>
-            <div class="w-3 h-3 rounded-full bg-slate-600"></div>
+      <!-- APERÇU DE L'INTERFACE -->
+      <section class="w-full max-w-4xl mx-auto float-animation hidden md:block" aria-hidden="true">
+        <div class="landing-panel rounded-3xl p-2 border border-line/50 relative overflow-hidden">
+          <div class="flex items-center gap-2 px-4 pt-2 pb-3 border-b border-line/50">
+            <div class="w-3 h-3 rounded-full bg-line"></div>
+            <div class="w-3 h-3 rounded-full bg-line"></div>
+            <div class="w-3 h-3 rounded-full bg-line"></div>
+            <span class="ml-2 font-mono text-[10px] text-dust-dim tracking-wide">spacelens.fr/planning</span>
           </div>
-          <!-- Fausse UI -->
-          <div
-            class="h-64 md:h-96 w-full bg-slate-900/80 rounded-b-2xl relative overflow-hidden flex items-center justify-center"
-          >
-            <div
-              class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1200&q=80')] bg-cover bg-center opacity-30"
-            ></div>
-            <div class="relative z-10 landing-card p-6 rounded-2xl w-[400px]">
+          <div class="map-bg h-64 md:h-96 w-full rounded-b-2xl relative overflow-hidden flex items-center justify-center">
+            <div class="relative z-10 landing-card p-6 rounded-2xl w-100">
               <div class="flex justify-between items-center mb-4">
-                <h3 class="font-bold text-xl text-white">Plateau de Calern</h3>
+                <h2 class="font-bold text-xl text-ink">Plateau de Calern</h2>
                 <div
-                  class="w-12 h-12 rounded-full border-2 border-emerald-500 bg-emerald-500/10 text-emerald-400 flex items-center justify-center font-bold"
+                  class="w-12 h-12 rounded-full border-2 border-good bg-good/10 text-good flex items-center justify-center font-bold"
                 >
                   85
                 </div>
               </div>
               <div class="space-y-3">
-                <div class="h-2 w-full bg-slate-700 rounded overflow-hidden">
-                  <div class="h-full bg-emerald-500 w-[85%]"></div>
+                <div class="h-2 w-full bg-line rounded overflow-hidden">
+                  <div class="h-full bg-good w-[85%]"></div>
                 </div>
-                <p class="text-xs text-slate-400">
-                  Conditions optimales pour le ciel profond. Bortle 3.
-                </p>
+                <p class="text-xs text-dust">Conditions optimales pour le ciel profond. Bortle 3.</p>
                 <div class="flex gap-2 mt-4">
-                  <div class="flex-1 bg-slate-800 py-2 rounded text-center text-xs text-slate-300">
-                    <i class="fas fa-meteor mb-1 block"></i> M42 Visible
+                  <div class="flex-1 bg-surface-2 py-2 rounded text-center text-xs text-dust">
+                    <i class="fas fa-meteor mb-1 block"></i> M42 visible
                   </div>
-                  <div class="flex-1 bg-slate-800 py-2 rounded text-center text-xs text-slate-300">
+                  <div class="flex-1 bg-surface-2 py-2 rounded text-center text-xs text-dust">
                     <i class="fas fa-wind mb-1 block"></i> 10 km/h
                   </div>
                 </div>
@@ -97,117 +138,211 @@
         </div>
       </section>
 
-      <!-- LES PILIERS (SEO TEXT SECTION) -->
-      <section class="w-full max-w-6xl mx-auto">
-        <h3 class="text-2xl font-bold text-center text-white mb-12">
+      <!-- POURQUOI -->
+      <section id="pourquoi" class="w-full scroll-mt-24">
+        <h2 class="text-2xl md:text-3xl font-bold text-center text-ink mb-3">
           Pourquoi utiliser SpaceLens ?
-        </h3>
+        </h2>
+        <p class="text-dust text-center max-w-xl mx-auto mb-12">
+          Trois sources de données éparpillées, un seul score pour décider en une minute.
+        </p>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-          <!-- Article 1 -->
           <article class="landing-card p-6 md:p-8 rounded-3xl">
             <div
-              class="w-12 h-12 bg-indigo-500/20 text-indigo-400 rounded-xl flex items-center justify-center mb-6 border border-indigo-500/30 text-xl"
+              class="w-12 h-12 bg-signal/20 text-signal rounded-xl flex items-center justify-center mb-6 border border-signal/30 text-xl"
             >
-              <i class="fas fa-map-location-dot"></i>
+              <i class="fas fa-map-location-dot" aria-hidden="true"></i>
             </div>
-            <h3 class="text-xl font-bold text-white mb-3">Cartographie & Météo Astro</h3>
-            <p class="text-sm text-slate-400 leading-relaxed">
-              Trouvez les meilleurs <strong>spots d'observation</strong> près de chez vous. Notre
+            <h3 class="text-xl font-bold text-ink mb-3">Cartographie & météo astro</h3>
+            <p class="text-sm text-dust leading-relaxed">
+              Trouvez les meilleurs <strong>spots d'observation</strong> près de chez vous. Le
               moteur croise la <strong>carte de pollution lumineuse (Bortle)</strong> avec les
-              données météorologiques (seeing, nuages, vent) pour vous générer un Score Astro
-              prédictif en temps réel.
+              données météo (seeing, nuages, vent) pour un score de visibilité par lieu et par
+              nuit.
             </p>
           </article>
 
-          <!-- Article 2 -->
           <article class="landing-card p-6 md:p-8 rounded-3xl">
             <div
-              class="w-12 h-12 bg-emerald-500/20 text-emerald-400 rounded-xl flex items-center justify-center mb-6 border border-emerald-500/30 text-xl"
+              class="w-12 h-12 bg-signal/20 text-signal rounded-xl flex items-center justify-center mb-6 border border-signal/30 text-xl"
             >
-              <i class="fas fa-book-journal-whills"></i>
+              <i class="fas fa-book-journal-whills" aria-hidden="true"></i>
             </div>
-            <h3 class="text-xl font-bold text-white mb-3">Planificateur & Éphémérides</h3>
-            <p class="text-sm text-slate-400 leading-relaxed">
+            <h3 class="text-xl font-bold text-ink mb-3">Planificateur & éphémérides</h3>
+            <p class="text-sm text-dust leading-relaxed">
               Ne laissez rien au hasard pour vos sessions d'<strong>astrophotographie</strong>.
               Recherchez une cible du <strong>ciel profond</strong> ou du système solaire, et
-              laissez l'algorithme vous indiquer la date, l'heure et le lieu optimaux pour
-              déclencher votre appareil.
+              laissez l'algorithme indiquer la date, l'heure et le lieu optimaux.
             </p>
           </article>
 
-          <!-- Article 3 -->
           <article class="landing-card p-6 md:p-8 rounded-3xl">
             <div
-              class="w-12 h-12 bg-orange-500/20 text-orange-400 rounded-xl flex items-center justify-center mb-6 border border-orange-500/30 text-xl"
+              class="w-12 h-12 bg-starlight/20 text-starlight rounded-xl flex items-center justify-center mb-6 border border-starlight/30 text-xl"
             >
-              <i class="fas fa-users"></i>
+              <i class="fas fa-users" aria-hidden="true"></i>
             </div>
-            <h3 class="text-xl font-bold text-white mb-3">L'Outil pour les Clubs Astro</h3>
-            <p class="text-sm text-slate-400 leading-relaxed">
-              Fini les groupes de messagerie désorganisés. Partagez vos soirées via un
-              <strong>tableau de bord interactif</strong>. Gérez le covoiturage, l'inventaire
-              matériel partagé (télescopes, montures) et communiquez facilement avec les membres de
+            <h3 class="text-xl font-bold text-ink mb-3">Pensé pour les clubs</h3>
+            <p class="text-sm text-dust leading-relaxed">
+              Fini les groupes de messagerie désorganisés. Partagez vos soirées, coordonnez le
+              covoiturage et le matériel partagé, et communiquez facilement avec les membres de
               votre <strong>club d'astronomie</strong>.
             </p>
           </article>
         </div>
       </section>
+
+      <!-- COMMENT CA MARCHE -->
+      <section id="comment-ca-marche" class="w-full max-w-3xl mx-auto scroll-mt-24">
+        <h2 class="text-2xl md:text-3xl font-bold text-center text-ink mb-12">
+          Comment ça marche
+        </h2>
+        <ol class="flex flex-col gap-6">
+          <li class="landing-card rounded-2xl p-5 flex items-start gap-4">
+            <span
+              class="shrink-0 w-9 h-9 rounded-full bg-starlight text-void font-mono text-sm font-bold flex items-center justify-center"
+              >1</span
+            >
+            <p class="text-sm md:text-base text-dust leading-relaxed pt-1.5">
+              <strong class="text-ink">Indiquez votre position</strong> — un lieu précis, ou
+              laissez SpaceLens détecter le vôtre.
+            </p>
+          </li>
+          <li class="landing-card rounded-2xl p-5 flex items-start gap-4">
+            <span
+              class="shrink-0 w-9 h-9 rounded-full bg-starlight text-void font-mono text-sm font-bold flex items-center justify-center"
+              >2</span
+            >
+            <p class="text-sm md:text-base text-dust leading-relaxed pt-1.5">
+              <strong class="text-ink">Le moteur croise les données</strong> — météo, pollution
+              lumineuse et éphémérides, pour chaque créneau des prochains jours.
+            </p>
+          </li>
+          <li class="landing-card rounded-2xl p-5 flex items-start gap-4">
+            <span
+              class="shrink-0 w-9 h-9 rounded-full bg-starlight text-void font-mono text-sm font-bold flex items-center justify-center"
+              >3</span
+            >
+            <p class="text-sm md:text-base text-dust leading-relaxed pt-1.5">
+              <strong class="text-ink">Recevez le meilleur créneau</strong> — un score de
+              visibilité vous indique quand et où pointer votre instrument.
+            </p>
+          </li>
+        </ol>
+      </section>
+
+      <!-- FAQ -->
+      <section id="faq" class="w-full max-w-3xl mx-auto scroll-mt-24">
+        <h2 class="text-2xl md:text-3xl font-bold text-center text-ink mb-12">
+          Questions fréquentes
+        </h2>
+        <div class="flex flex-col gap-3">
+          <details class="landing-card rounded-2xl p-5">
+            <summary
+              class="font-semibold text-ink cursor-pointer list-none flex justify-between items-center gap-4"
+            >
+              Qu'est-ce que l'échelle de Bortle ?
+              <i class="faq-chevron fas fa-chevron-down text-dust text-xs" aria-hidden="true"></i>
+            </summary>
+            <p class="text-sm text-dust leading-relaxed mt-3">
+              C'est une échelle de 1 à 9 qui mesure la pollution lumineuse d'un ciel nocturne : 1
+              correspond à un ciel totalement noir, 9 à un centre-ville très éclairé. Plus la
+              classe est basse, plus vous verrez d'étoiles et d'objets du ciel profond.
+            </p>
+          </details>
+          <details class="landing-card rounded-2xl p-5">
+            <summary
+              class="font-semibold text-ink cursor-pointer list-none flex justify-between items-center gap-4"
+            >
+              Quand SpaceLens sera-t-il disponible ?
+              <i class="faq-chevron fas fa-chevron-down text-dust text-xs" aria-hidden="true"></i>
+            </summary>
+            <p class="text-sm text-dust leading-relaxed mt-3">
+              Le lancement est prévu en 2026. Inscrivez-vous à la liste d'attente pour être
+              informé dès l'ouverture.
+            </p>
+          </details>
+          <details class="landing-card rounded-2xl p-5">
+            <summary
+              class="font-semibold text-ink cursor-pointer list-none flex justify-between items-center gap-4"
+            >
+              Ai-je besoin d'un télescope pour utiliser SpaceLens ?
+              <i class="faq-chevron fas fa-chevron-down text-dust text-xs" aria-hidden="true"></i>
+            </summary>
+            <p class="text-sm text-dust leading-relaxed mt-3">
+              Non. SpaceLens s'adresse aussi bien à l'observation à l'œil nu et aux jumelles qu'à
+              l'astrophotographie avec instrument.
+            </p>
+          </details>
+          <details class="landing-card rounded-2xl p-5">
+            <summary
+              class="font-semibold text-ink cursor-pointer list-none flex justify-between items-center gap-4"
+            >
+              SpaceLens fonctionne-t-il pour les clubs d'astronomie ?
+              <i class="faq-chevron fas fa-chevron-down text-dust text-xs" aria-hidden="true"></i>
+            </summary>
+            <p class="text-sm text-dust leading-relaxed mt-3">
+              Oui, c'est l'un des cas d'usage prévus : partage de soirées, coordination du
+              covoiturage et du matériel partagé entre membres.
+            </p>
+          </details>
+        </div>
+      </section>
     </main>
 
     <!-- FOOTER -->
-    <footer
-      class="relative z-10 border-t border-slate-800 bg-slate-900/50 backdrop-blur-md py-8 text-center mt-12"
-    >
-      <div
-        class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4"
-      >
-        <p class="text-xs text-slate-500">© 2026 SpaceLens. Fait avec passion sous les étoiles.</p>
-        <div class="flex gap-4">
-          <a
-            href="mailto:contact@spacelens.fr"
-            class="text-xs text-slate-400 hover:text-indigo-400 transition-colors"
-            >contact@spacelens.fr</a
-          >
-        </div>
+    <footer class="relative z-10 border-t border-line bg-void/50 backdrop-blur-md py-8 text-center mt-12">
+      <div class="max-w-6xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4">
+        <p class="text-xs text-dust-dim">© 2026 SpaceLens. Fait avec passion sous les étoiles.</p>
+        <a
+          href="mailto:contact@spacelens.fr"
+          class="text-xs text-dust hover:text-starlight transition-colors"
+          >contact@spacelens.fr</a
+        >
       </div>
     </footer>
   </div>
 </template>
 
 <style scoped>
-/* Fond de la landing page — les polices/couleurs de marque viennent de assets/main.css,
-   ce bloc ne couvre que ce qui est spécifique à cette page (non réutilisé ailleurs). */
+/* Fond de la landing page — reprend le motif de halos Starlight/Signal de .map-bg
+   (assets/main.css), spécifique à cette page. */
 .bg-landing {
+  background-color: var(--color-void);
   background-image:
-    radial-gradient(circle at 15% 50%, rgba(79, 70, 229, 0.15) 0%, transparent 50%),
-    radial-gradient(circle at 85% 30%, rgba(16, 185, 129, 0.1) 0%, transparent 50%),
-    url('https://images.unsplash.com/photo-1506318137071-a8e063b4bec0?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80');
-  background-size: cover;
-  background-position: center;
+    radial-gradient(
+      circle at 15% 50%,
+      color-mix(in srgb, var(--color-starlight) 12%, transparent) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 85% 30%,
+      color-mix(in srgb, var(--color-signal) 10%, transparent) 0%,
+      transparent 50%
+    );
   background-attachment: fixed;
-  background-blend-mode: overlay;
 }
 
 .landing-panel {
-  background: rgba(15, 23, 42, 0.6);
+  background: color-mix(in srgb, var(--color-surface) 60%, transparent);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .landing-card {
-  background: rgba(30, 41, 59, 0.5);
+  background: color-mix(in srgb, var(--color-surface-2) 50%, transparent);
   backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid color-mix(in srgb, var(--color-ink) 5%, transparent);
   transition:
     transform 0.3s ease,
-    background 0.3s ease;
+    background 0.3s ease,
+    border-color 0.3s ease;
 }
 .landing-card:hover {
-  transform: translateY(-5px);
-  background: rgba(30, 41, 59, 0.7);
-  border-color: rgba(99, 102, 241, 0.3);
+  transform: translateY(-3px);
+  background: color-mix(in srgb, var(--color-surface-2) 70%, transparent);
+  border-color: color-mix(in srgb, var(--color-starlight) 30%, transparent);
 }
 
 .float-animation {
@@ -226,6 +361,15 @@
 }
 
 .glow-text {
-  text-shadow: 0 0 30px rgba(99, 102, 241, 0.5);
+  text-shadow: 0 0 30px color-mix(in srgb, var(--color-starlight) 50%, transparent);
+}
+
+details > summary::-webkit-details-marker {
+  display: none;
+}
+/* Le transform: rotate() est étrangement ignoré sur ce <i> (icône FA en ::before) dans
+   certains contextes de rendu — on bascule directement le glyphe via la variable FA. */
+details[open] .faq-chevron {
+  --fa: '\f077'; /* chevron-up */
 }
 </style>
