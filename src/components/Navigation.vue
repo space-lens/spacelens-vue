@@ -12,9 +12,33 @@
         title="SpaceLens"
       >
         <svg viewBox="0 0 40 40" class="w-7 h-7" aria-hidden="true">
-          <circle cx="20" cy="20" r="17" fill="none" stroke="var(--color-dust-dim)" stroke-width="1" opacity="0.4" />
-          <circle cx="20" cy="20" r="11" fill="none" stroke="var(--color-signal)" stroke-width="1" opacity="0.55" />
-          <circle cx="20" cy="20" r="6" fill="none" stroke="var(--color-starlight)" stroke-width="1.2" opacity="0.9" />
+          <circle
+            cx="20"
+            cy="20"
+            r="17"
+            fill="none"
+            stroke="var(--color-dust-dim)"
+            stroke-width="1"
+            opacity="0.4"
+          />
+          <circle
+            cx="20"
+            cy="20"
+            r="11"
+            fill="none"
+            stroke="var(--color-signal)"
+            stroke-width="1"
+            opacity="0.55"
+          />
+          <circle
+            cx="20"
+            cy="20"
+            r="6"
+            fill="none"
+            stroke="var(--color-starlight)"
+            stroke-width="1.2"
+            opacity="0.9"
+          />
           <circle cx="20" cy="20" r="2" fill="var(--color-starlight)" />
         </svg>
       </div>
@@ -65,7 +89,10 @@
       <div
         class="w-8 h-8 rounded-full bg-surface-2 border-2 border-line overflow-hidden mt-1 md:mb-0 shadow-sm"
       >
-        <img src="https://ui-avatars.com/api/?name=User&background=e8b65b&color=0b0b12" alt="User" />
+        <img
+          src="https://ui-avatars.com/api/?name=User&background=e8b65b&color=0b0b12"
+          alt="User"
+        />
       </div>
     </div>
   </nav>

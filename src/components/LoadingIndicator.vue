@@ -54,9 +54,33 @@ onUnmounted(() => {
         class="bg-surface/95 border border-line rounded-2xl shadow-2xl px-6 py-5 flex flex-col items-center gap-3 max-w-[80%]"
       >
         <svg viewBox="0 0 40 40" class="w-9 h-9 loading-aperture" aria-hidden="true">
-          <circle cx="20" cy="20" r="17" fill="none" stroke="var(--color-dust-dim)" stroke-width="1" opacity="0.35" />
-          <circle cx="20" cy="20" r="11" fill="none" stroke="var(--color-signal)" stroke-width="1" opacity="0.5" />
-          <circle cx="20" cy="20" r="6" fill="none" stroke="var(--color-starlight)" stroke-width="1.2" opacity="0.9" />
+          <circle
+            cx="20"
+            cy="20"
+            r="17"
+            fill="none"
+            stroke="var(--color-dust-dim)"
+            stroke-width="1"
+            opacity="0.35"
+          />
+          <circle
+            cx="20"
+            cy="20"
+            r="11"
+            fill="none"
+            stroke="var(--color-signal)"
+            stroke-width="1"
+            opacity="0.5"
+          />
+          <circle
+            cx="20"
+            cy="20"
+            r="6"
+            fill="none"
+            stroke="var(--color-starlight)"
+            stroke-width="1.2"
+            opacity="0.9"
+          />
           <circle cx="20" cy="20" r="2" fill="var(--color-starlight)" />
         </svg>
         <span class="text-sm font-medium text-dust text-center">{{ MESSAGES[messageIndex] }}</span>

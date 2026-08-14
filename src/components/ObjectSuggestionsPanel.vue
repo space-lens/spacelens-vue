@@ -88,7 +88,10 @@ function pick(suggestion: SpatioTemporalSuggestion) {
                   Bortle {{ suggestion.bortle }} · {{ suggestion.distance_km }}km ·
                   <span :class="scoreTextClass(suggestion.score)">{{ suggestion.score }}/100</span>
                 </p>
-                <p v-if="!suggestion.within_weather_window" class="text-[10px] text-dust-dim mt-0.5">
+                <p
+                  v-if="!suggestion.within_weather_window"
+                  class="text-[10px] text-dust-dim mt-0.5"
+                >
                   Météo pas encore fiable pour cette date (éphémérides + lune seulement)
                 </p>
               </div>
