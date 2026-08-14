@@ -13,9 +13,4 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
-  build: {
-    // Le WAF de l'hébergeur (PlanetHoster/N0C) bloque tout le chemin /assets/,
-    // quel que soit son contenu — on renomme le dossier de sortie pour l'éviter.
-    assetsDir: 'static',
-  },
 })
