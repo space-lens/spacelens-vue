@@ -74,6 +74,5 @@ import { appState, locateUser, toggleBortleLayer } from '../composables/useAppSt
       <!-- LAYER 3 : SEARCH OVERLAY -->
       <SearchOverlay />
     </main>
-
   </div>
 </template>

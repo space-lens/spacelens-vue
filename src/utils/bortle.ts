@@ -29,11 +29,20 @@ const SWATCH_BACKDROP: [number, number, number] = [21, 20, 31] // --color-surfac
 
 export function swatchColor(level: BortleLevel): string {
   const match = level.color.match(/rgba?\(([^)]+)\)/)
-  if (!match) return level.color
+
+  if (!match || !match[1]) {
+    return level.color
+  }
 
   const [r, g, b, a] = match[1].split(',').map((part) => parseFloat(part))
+
+  if (!r || !g || !b || !a) {
+    return level.color
+  }
+
   const alpha = a ?? 1
-  const blend = (channel: number, backdrop: number) => Math.round(channel * alpha + backdrop * (1 - alpha))
+  const blend = (channel: number, backdrop: number) =>
+    Math.round(channel * alpha + backdrop * (1 - alpha))
 
   return `rgb(${blend(r, SWATCH_BACKDROP[0])}, ${blend(g, SWATCH_BACKDROP[1])}, ${blend(b, SWATCH_BACKDROP[2])})`
 }

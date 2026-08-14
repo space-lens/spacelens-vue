@@ -4,7 +4,9 @@ const waitlistMailto =
 </script>
 
 <template>
-  <div class="bg-landing min-h-screen flex flex-col relative overflow-x-hidden selection:bg-starlight selection:text-void">
+  <div
+    class="bg-landing min-h-screen flex flex-col relative overflow-x-hidden selection:bg-starlight selection:text-void"
+  >
     <div class="absolute inset-0 bg-void/70 z-0"></div>
 
     <!-- HEADER -->
@@ -64,9 +66,7 @@ const waitlistMailto =
         <p class="font-mono text-xs uppercase tracking-widest text-signal mb-5">
           Astronomie amateur & clubs
         </p>
-        <h1
-          class="text-4xl md:text-6xl font-extrabold text-ink tracking-tight leading-tight mb-6"
-        >
+        <h1 class="text-4xl md:text-6xl font-extrabold text-ink tracking-tight leading-tight mb-6">
           Ne ratez plus jamais
           <span class="font-serif italic text-starlight glow-text">une nuit claire.</span>
         </h1>
@@ -107,9 +107,13 @@ const waitlistMailto =
             <div class="w-3 h-3 rounded-full bg-line"></div>
             <div class="w-3 h-3 rounded-full bg-line"></div>
             <div class="w-3 h-3 rounded-full bg-line"></div>
-            <span class="ml-2 font-mono text-[10px] text-dust-dim tracking-wide">spacelens.fr/planning</span>
+            <span class="ml-2 font-mono text-[10px] text-dust-dim tracking-wide"
+              >spacelens.fr/planning</span
+            >
           </div>
-          <div class="map-bg h-64 md:h-96 w-full rounded-b-2xl relative overflow-hidden flex items-center justify-center">
+          <div
+            class="map-bg h-64 md:h-96 w-full rounded-b-2xl relative overflow-hidden flex items-center justify-center"
+          >
             <div class="relative z-10 landing-card p-6 rounded-2xl w-100">
               <div class="flex justify-between items-center mb-4">
                 <h2 class="font-bold text-xl text-ink">Plateau de Calern</h2>
@@ -123,7 +127,9 @@ const waitlistMailto =
                 <div class="h-2 w-full bg-line rounded overflow-hidden">
                   <div class="h-full bg-good w-[85%]"></div>
                 </div>
-                <p class="text-xs text-dust">Conditions optimales pour le ciel profond. Bortle 3.</p>
+                <p class="text-xs text-dust">
+                  Conditions optimales pour le ciel profond. Bortle 3.
+                </p>
                 <div class="flex gap-2 mt-4">
                   <div class="flex-1 bg-surface-2 py-2 rounded text-center text-xs text-dust">
                     <i class="fas fa-meteor mb-1 block"></i> M42 visible
@@ -158,8 +164,7 @@ const waitlistMailto =
             <p class="text-sm text-dust leading-relaxed">
               Trouvez les meilleurs <strong>spots d'observation</strong> près de chez vous. Le
               moteur croise la <strong>carte de pollution lumineuse (Bortle)</strong> avec les
-              données météo (seeing, nuages, vent) pour un score de visibilité par lieu et par
-              nuit.
+              données météo (seeing, nuages, vent) pour un score de visibilité par lieu et par nuit.
             </p>
           </article>
 
@@ -195,9 +200,7 @@ const waitlistMailto =
 
       <!-- COMMENT CA MARCHE -->
       <section id="comment-ca-marche" class="w-full max-w-3xl mx-auto scroll-mt-24">
-        <h2 class="text-2xl md:text-3xl font-bold text-center text-ink mb-12">
-          Comment ça marche
-        </h2>
+        <h2 class="text-2xl md:text-3xl font-bold text-center text-ink mb-12">Comment ça marche</h2>
         <ol class="flex flex-col gap-6">
           <li class="landing-card rounded-2xl p-5 flex items-start gap-4">
             <span
@@ -205,8 +208,8 @@ const waitlistMailto =
               >1</span
             >
             <p class="text-sm md:text-base text-dust leading-relaxed pt-1.5">
-              <strong class="text-ink">Indiquez votre position</strong> — un lieu précis, ou
-              laissez SpaceLens détecter le vôtre.
+              <strong class="text-ink">Indiquez votre position</strong> — un lieu précis, ou laissez
+              SpaceLens détecter le vôtre.
             </p>
           </li>
           <li class="landing-card rounded-2xl p-5 flex items-start gap-4">
@@ -225,8 +228,8 @@ const waitlistMailto =
               >3</span
             >
             <p class="text-sm md:text-base text-dust leading-relaxed pt-1.5">
-              <strong class="text-ink">Recevez le meilleur créneau</strong> — un score de
-              visibilité vous indique quand et où pointer votre instrument.
+              <strong class="text-ink">Recevez le meilleur créneau</strong> — un score de visibilité
+              vous indique quand et où pointer votre instrument.
             </p>
           </li>
         </ol>
@@ -247,8 +250,8 @@ const waitlistMailto =
             </summary>
             <p class="text-sm text-dust leading-relaxed mt-3">
               C'est une échelle de 1 à 9 qui mesure la pollution lumineuse d'un ciel nocturne : 1
-              correspond à un ciel totalement noir, 9 à un centre-ville très éclairé. Plus la
-              classe est basse, plus vous verrez d'étoiles et d'objets du ciel profond.
+              correspond à un ciel totalement noir, 9 à un centre-ville très éclairé. Plus la classe
+              est basse, plus vous verrez d'étoiles et d'objets du ciel profond.
             </p>
           </details>
           <details class="landing-card rounded-2xl p-5">
@@ -259,8 +262,8 @@ const waitlistMailto =
               <i class="faq-chevron fas fa-chevron-down text-dust text-xs" aria-hidden="true"></i>
             </summary>
             <p class="text-sm text-dust leading-relaxed mt-3">
-              Le lancement est prévu en 2026. Inscrivez-vous à la liste d'attente pour être
-              informé dès l'ouverture.
+              Le lancement est prévu en 2026. Inscrivez-vous à la liste d'attente pour être informé
+              dès l'ouverture.
             </p>
           </details>
           <details class="landing-card rounded-2xl p-5">
@@ -292,8 +295,12 @@ const waitlistMailto =
     </main>
 
     <!-- FOOTER -->
-    <footer class="relative z-10 border-t border-line bg-void/50 backdrop-blur-md py-8 text-center mt-12">
-      <div class="max-w-6xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4">
+    <footer
+      class="relative z-10 border-t border-line bg-void/50 backdrop-blur-md py-8 text-center mt-12"
+    >
+      <div
+        class="max-w-6xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4"
+      >
         <p class="text-xs text-dust-dim">© 2026 SpaceLens. Fait avec passion sous les étoiles.</p>
         <a
           href="mailto:contact@spacelens.fr"
